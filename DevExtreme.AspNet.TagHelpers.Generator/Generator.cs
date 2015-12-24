@@ -58,8 +58,10 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             }
 
             foreach(var prop in tag.GenerateProperties()) {
-                CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + prop.GetName(), prop.GetClrType());
-                builder.AppendProp(prop);
+                var propTypeInfo = new PropertyTypeInfo(tag.GetFullKey(), prop.GetName(), prop.GetJsType());
+
+                CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + prop.GetName(), propTypeInfo.ClrType);
+                builder.AppendProp(prop, propTypeInfo);
             }
 
             builder.EndBlock();

@@ -18,7 +18,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             ModifyCommonSeriesSettings(tag);
             TurnChildrenIntoProps(tag);
             ValidateEnums(tag);
-            ModifyPropTypes(tag);
         }
 
         static void ModifyWidget(TagInfo tag) {
@@ -160,29 +159,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                     continue;
 
                 EnumRegistry.ValidateEnum(propElement, tag.GetFullKey());
-            }
-        }
-
-        static void ModifyPropTypes(TagInfo tag) {
-            var enumsTable = EnumRegistry.InvertedKnownEnumns;
-            var propsTable = PropTypeRegistry.OverrideTable;
-
-            foreach(var propElement in tag.PropElements) {
-                var fullName = tag.GetFullKey() + "." + Utils.ToCamelCase(propElement.GetName());
-                var overridenType = String.Empty;
-
-                if(enumsTable.ContainsKey(fullName)) {
-                    if(propElement.GetRawType() == "array")
-                        overridenType = $"IEnumerable<{enumsTable[fullName]}>";
-                    else
-                        overridenType = enumsTable[fullName];
-                }
-
-                if(propsTable.ContainsKey(fullName))
-                    overridenType = propsTable[fullName];
-
-                if(!String.IsNullOrEmpty(overridenType))
-                    propElement.SetAttributeValue(PropTypeRegistry.CLR_TYPE_OVERRIDE_ATTR, overridenType);
             }
         }
     }
