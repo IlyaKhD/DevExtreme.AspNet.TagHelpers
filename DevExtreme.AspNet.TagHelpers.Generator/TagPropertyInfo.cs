@@ -8,30 +8,23 @@ using System.Xml.Linq;
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
     class TagPropertyInfo {
-        XElement _element;
+        Descriptor _descriptor;
 
-        public TagPropertyInfo(XElement element) {
-            _element = element;
+        public TagPropertyInfo(Descriptor descriptor) {
+            _descriptor = descriptor;
         }
 
-        public string GetName() {
-            return Utils.ToCamelCase(_element.GetName());
-        }
+        public string GetName() => Utils.ToCamelCase(_descriptor.RawName);
 
-        public string GetSummaryText() {
-            return Utils.NormalizeDescription(_element.GetDescription());
-        }
+        public string GetSummaryText() => _descriptor.Summary;
 
         public PropTypeInfo CreateTypeInfo(string parentName) {
             var propName = GetName();
-            var fullName = $"{parentName}.{propName}";
 
-            return new PropTypeInfo(_element, fullName, propName);
+            return new PropTypeInfo(_descriptor, $"{parentName}.{propName}", propName);
         }
 
-        public string GetRawType() {
-            return _element.GetRawType();
-        }
+        public string GetRawType() => _descriptor.RawType;
 
         public string GetCustomAttrName() {
             var name = GetName();

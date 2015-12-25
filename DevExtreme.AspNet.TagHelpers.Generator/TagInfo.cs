@@ -9,39 +9,27 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
     class TagInfo {
         readonly TagInfoPreProcessor _preProcessor;
 
-        public readonly XElement Element;
+        public Descriptor Descriptor;
         public string Key;
         public readonly IEnumerable<string> Namespace;
         public readonly string ParentTagName;
         public string BaseClassName = "HierarchicalTagHelper";
-        public readonly List<XElement> ChildTagElements = new List<XElement>();
-        public readonly List<XElement> PropElements = new List<XElement>();
         public readonly List<string> ExtraChildRestrictions = new List<string>();
 
-        public TagInfo(XElement element, TagInfoPreProcessor preProcessor, IEnumerable<string> ns, string parentTagName) {
-            _preProcessor = preProcessor;
-            Element = element;
+        public TagInfo(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns, string parentTagName) {
             Namespace = ns;
             ParentTagName = parentTagName;
-            Key = Element.GetName();
+            Descriptor = descriptor;
+            Key = descriptor.RawName;
 
-            foreach(var prop in element.Element("Properties").Elements("IntellisenseObjectPropertyInfo")) {
-                if(prop.IsChildTagElement())
-                    ChildTagElements.Add(prop);
-                else
-                    PropElements.Add(prop);
-            }
-
+            _preProcessor = preProcessor;
             preProcessor.Process(this);
         }
 
-        public string GetTagName() {
-            return Utils.ToKebabCase(Element.GetName());
-        }
+        public string GetTagName() => Utils.ToKebabCase(Descriptor.RawName);
 
         public string GetNamespaceEntry() {
-            var elementName = Element.GetName();
-            return elementName.StartsWith("dx") ? elementName : Utils.ToCamelCase(elementName);
+            return Descriptor.RawName.StartsWith("dx") ? Descriptor.RawName : Utils.ToCamelCase(Descriptor.RawName);
         }
 
         public string GetFullKey() {
@@ -52,13 +40,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return GetNamespaceEntry() + "TagHelper";
         }
 
-        public string GetSummaryText() {
-            return Utils.NormalizeDescription(Element.GetDescription());
-        }
+        public string GetSummaryText() => Descriptor.Summary;
 
         public TagInfo[] GenerateChildTags() {
-            return ChildTagElements
-                .Select(el => new TagInfo(el, _preProcessor, Namespace.Concat(GetNamespaceEntry()), GetTagName()))
+            return Descriptor.GetChildTags()
+                .Select(d => new TagInfo(d, _preProcessor, Namespace.Concat(GetNamespaceEntry()), GetTagName()))
                 .OrderBy(t => t.GetTagName())
                 .ToArray();
         }
@@ -68,8 +54,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         public TagPropertyInfo[] GenerateProperties() {
-            return PropElements
-                .Select(el => new TagPropertyInfo(el))
+            return Descriptor.GetAttributes()
+                .Select(d => new TagPropertyInfo(d))
                 .OrderBy(p => p.GetName())
                 .ToArray();
         }
