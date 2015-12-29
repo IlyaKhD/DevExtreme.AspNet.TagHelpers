@@ -22,7 +22,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return Utils.NormalizeDescription(_element.GetDescription());
         }
 
-        public string GetJsType() {
+        public string GetRawType() {
             return _element.GetRawType();
         }
 

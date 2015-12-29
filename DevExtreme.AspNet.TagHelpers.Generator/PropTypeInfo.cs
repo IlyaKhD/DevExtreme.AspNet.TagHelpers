@@ -25,10 +25,10 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public readonly bool IsDomTemplate;
         public readonly bool IsRawString;
 
-        public PropTypeInfo(string tagFullKey, string propName, string jsTypeString) {
+        public PropTypeInfo(string tagFullKey, string propName, string rawType) {
             var dirtyType =
-                TryGetTypeOverride(tagFullKey + "." + propName, isArray: jsTypeString == "array") ??
-                TryGetType(propName, jsTypeString);
+                TryGetTypeOverride(tagFullKey + "." + propName, isArray: rawType == "array") ??
+                TryGetType(propName, rawType);
 
             if(dirtyType == null)
                 throw new Exception("Unable to resolve property type");
@@ -38,8 +38,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             ClrType = StripSpecialType(dirtyType);
         }
 
-        static string TryGetType(string propName, string jsTypeString) {
-            var rawTypes = jsTypeString.Split('|');
+        static string TryGetType(string propName, string rawTypeString) {
+            var rawTypes = rawTypeString.Split('|');
             bool
                 canBeString = rawTypes.Any(t => t == "string"),
                 canBeNumber = rawTypes.Any(t => t == "number" || t == "numeric"),
