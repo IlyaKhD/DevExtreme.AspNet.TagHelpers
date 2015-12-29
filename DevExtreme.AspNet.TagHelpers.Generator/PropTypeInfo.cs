@@ -20,7 +20,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             SPECIAL_RAW_STRING = "sp_raw_string",
             SPECIAL_DOM_TEMPLATE = "sp_dom_template";
 
-        static readonly IDictionary<string, string> _predefinedTypes = InitPredefinedTypes();
+        static readonly IDictionary<string, string> _overrideTable = InitOverrideTable();
 
         public readonly string ClrType;
         public readonly bool IsDomTemplate;
@@ -87,8 +87,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         static string TryGetPredefinedType(string fullName) {
-            if(_predefinedTypes.ContainsKey(fullName))
-                return _predefinedTypes[fullName];
+            if(_overrideTable.ContainsKey(fullName))
+                return _overrideTable[fullName];
 
             return null;
         }
@@ -111,7 +111,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return type;
         }
 
-        static IDictionary<string, string> InitPredefinedTypes() => new Dictionary<string, string> {
+        static IDictionary<string, string> InitOverrideTable() => new Dictionary<string, string> {
             { "DevExtreme.AspNet.TagHelpers.Data.Datasource.Field.FilterValues", CLR_ARRAY_OBJECT },
             { "DevExtreme.AspNet.TagHelpers.Data.Datasource.Field.SortBySummaryPath", CLR_ARRAY_STRING },
             { "DevExtreme.AspNet.TagHelpers.Data.Datasource.Filter", CLR_ARRAY_OBJECT },
