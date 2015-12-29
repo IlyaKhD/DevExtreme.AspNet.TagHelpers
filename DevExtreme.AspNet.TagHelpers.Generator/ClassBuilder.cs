@@ -131,7 +131,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             AppendEmptyLine();
         }
 
-        public void AppendProp(TagPropertyInfo prop, PropertyTypeInfo propType) {
+        public void AppendProp(TagPropertyInfo prop, PropTypeInfo propType) {
             AppendSummary(prop.GetSummaryText());
 
             var customAttr = prop.GetCustomAttrName();

@@ -58,7 +58,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             }
 
             foreach(var prop in tag.GenerateProperties()) {
-                var propTypeInfo = new PropertyTypeInfo(tag.GetFullKey(), prop.GetName(), prop.GetJsType());
+                var propTypeInfo = new PropTypeInfo(tag.GetFullKey(), prop.GetName(), prop.GetJsType());
 
                 CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + prop.GetName(), propTypeInfo.ClrType);
                 builder.AppendProp(prop, propTypeInfo);

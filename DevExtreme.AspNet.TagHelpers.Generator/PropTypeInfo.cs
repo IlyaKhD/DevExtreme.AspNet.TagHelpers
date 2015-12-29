@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
-    public class PropertyTypeInfo {
+    public class PropTypeInfo {
         const string
             CLR_BOOL = "bool",
             CLR_DOUBLE = "double",
@@ -96,7 +96,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public readonly bool IsDomTemplate;
         public readonly bool IsRawString;
 
-        public PropertyTypeInfo(string tagFullKey, string propName, string jsTypeString) {
+        public PropTypeInfo(string tagFullKey, string propName, string jsTypeString) {
             var dirtyType =
                 TryGetTypeOverride(tagFullKey + "." + propName, isArray: jsTypeString == "array") ??
                 TryGetType(propName, jsTypeString);
