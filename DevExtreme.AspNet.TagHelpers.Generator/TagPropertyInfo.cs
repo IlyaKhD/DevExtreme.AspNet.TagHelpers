@@ -22,7 +22,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return Utils.NormalizeDescription(_element.GetDescription());
         }
 
-        public PropTypeInfo GetTypeInfo(string parentName) {
+        public PropTypeInfo CreateTypeInfo(string parentName) {
             var propName = GetName();
             var fullName = $"{parentName}.{propName}";
 
