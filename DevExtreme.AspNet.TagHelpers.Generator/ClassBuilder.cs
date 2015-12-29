@@ -131,7 +131,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             AppendEmptyLine();
         }
 
-        public void AppendProp(TagPropertyInfo prop) {
+        public void AppendProp(TagPropertyInfo prop, PropTypeInfo propType) {
             AppendSummary(prop.GetSummaryText());
 
             var customAttr = prop.GetCustomAttrName();
@@ -139,22 +139,20 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 AppendAttribute("HtmlAttributeName", $"\"{customAttr}\"");
 
             var name = prop.GetName();
-            var dirtyType = prop.GetClrType();
-            var type = PropTypeRegistry.StripSpecialType(dirtyType);
 
             AppendGeneratedAttribute();
-            Append($"public {type} {name} ");
+            Append($"public {propType.ClrType} {name} ");
             StartBlock();
 
-            AppendLine($"get {{ return GetConfigValue<{type}>(\"{name}\"); }}");
+            AppendLine($"get {{ return GetConfigValue<{propType.ClrType}>(\"{name}\"); }}");
             Append($"set {{ SetConfigValue(\"{name}\", ");
 
-            if(dirtyType == PropTypeRegistry.SPECIAL_DOM_TEMPLATE)
+            if(propType.IsDomTemplate)
                 Append("Utils.WrapDomTemplateValue(value)");
             else
                 Append("value");
 
-            if(dirtyType == PropTypeRegistry.SPECIAL_RAW_STRING || dirtyType == PropTypeRegistry.SPECIAL_DOM_TEMPLATE)
+            if(propType.IsRawString)
                 Append(", isRaw: true");
 
             AppendLine("); }");

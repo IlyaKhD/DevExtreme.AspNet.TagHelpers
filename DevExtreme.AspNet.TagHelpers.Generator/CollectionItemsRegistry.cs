@@ -43,19 +43,19 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return _knownCollectionItemFullKeys.Contains(fullKey);
         }
 
-        public static bool SuspectCollectionItem(string rawType) {
-            if(String.IsNullOrEmpty(rawType))
+        public static bool SuspectCollectionItem(string rawTypeString) {
+            if(String.IsNullOrEmpty(rawTypeString))
                 return false;
 
-            var parts = rawType.ToLower().Split('|');
+            var rawTypes = rawTypeString.ToLower().Split('|');
 
-            if(!parts.Contains("array"))
+            if(!rawTypes.Contains("array"))
                 return false;
 
-            if(parts.Length == 1)
+            if(rawTypes.Length == 1)
                 return true;
 
-            if(parts.Length < 3 && parts.Contains("object"))
+            if(rawTypes.Length < 3 && rawTypes.Contains("object"))
                 return true;
 
             return false;
