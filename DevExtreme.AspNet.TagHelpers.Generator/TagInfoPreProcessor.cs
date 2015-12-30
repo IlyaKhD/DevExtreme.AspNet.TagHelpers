@@ -17,7 +17,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             ModifyRangeSelectorChartOptions(tag);
             ModifyCommonSeriesSettings(tag);
             TurnChildrenIntoProps(tag);
-            ValidateEnums(tag);
         }
 
         static void ModifyWidget(TagInfo tag) {
@@ -150,15 +149,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 element.Element("Properties").Remove();
                 tag.ChildTagElements.Remove(element);
                 tag.PropElements.Add(element);
-            }
-        }
-
-        static void ValidateEnums(TagInfo tag) {
-            foreach(var propElement in tag.PropElements) {
-                if(!EnumRegistry.SuspectEnum(propElement))
-                    continue;
-
-                EnumRegistry.ValidateEnum(propElement, tag.GetFullKey());
             }
         }
     }

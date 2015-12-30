@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -25,9 +26,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public readonly bool IsDomTemplate;
         public readonly bool IsRawString;
 
-        public PropTypeInfo(string tagFullKey, string propName, string rawType) {
+        public PropTypeInfo(XElement element, string fullName, string propName) {
+            var rawType = element.GetRawType();
             var dirtyType =
-                TryGetTypeOverride(tagFullKey + "." + propName, isArray: rawType == "array") ??
+                TryGetTypeOverride(fullName) ??
+                TryGetEnumType(element, fullName, isArray: rawType == "array") ??
                 TryGetType(propName, rawType);
 
             if(dirtyType == null)
@@ -83,16 +86,22 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return null;
         }
 
-        static string TryGetTypeOverride(string fullName, bool isArray) {
+        static string TryGetTypeOverride(string fullName) {
             if(_overrideTable.ContainsKey(fullName))
                 return _overrideTable[fullName];
 
-            if(EnumRegistry.InvertedKnownEnumns.ContainsKey(fullName))
-                return isArray
-                    ? $"IEnumerable<{EnumRegistry.InvertedKnownEnumns[fullName]}>"
-                    : EnumRegistry.InvertedKnownEnumns[fullName];
-
             return null;
+        }
+
+        string TryGetEnumType(XElement element, string fullName, bool isArray) {
+            if(!EnumRegistry.IsEnum(element, fullName))
+                return null;
+
+            var typeOverride = EnumRegistry.GetEnumTypeName(element, fullName);
+
+            return isArray
+                 ? $"IEnumerable<{typeOverride}>"
+                 : typeOverride;
         }
 
         static string StripSpecialType(string type) {

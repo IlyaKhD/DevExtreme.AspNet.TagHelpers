@@ -22,6 +22,13 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return Utils.NormalizeDescription(_element.GetDescription());
         }
 
+        public PropTypeInfo CreateTypeInfo(string parentName) {
+            var propName = GetName();
+            var fullName = $"{parentName}.{propName}";
+
+            return new PropTypeInfo(_element, fullName, propName);
+        }
+
         public string GetRawType() {
             return _element.GetRawType();
         }

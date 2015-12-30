@@ -25,15 +25,16 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             }
         }
 
-        public static bool SuspectEnum(XElement element) {
-            return element.Element("Values").Elements().Any();
+        public static bool IsEnum(XElement element, string fullName) {
+            return !KnownNonEnums.Contains(fullName) && element.Element("Values").Elements().Any();
         }
 
-        public static void ValidateEnum(XElement element, string parentFullKey) {
-            var fullName = parentFullKey + "." + Utils.ToCamelCase(element.GetName());
+        public static string GetEnumTypeName(XElement element, string fullName) {
+            ValidateEnum(element, fullName);
+            return InvertedKnownEnumns[fullName];
+        }
 
-            if(KnownNonEnums.Contains(fullName))
-                return;
+        static void ValidateEnum(XElement element, string fullName) {
 
             var intellisenseValues = element.Element("Values").Elements()
                 .Select(i => i.GetName().Trim())
