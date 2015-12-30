@@ -29,9 +29,9 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public PropTypeInfo(XElement element, string fullName, string propName) {
             var rawType = element.GetRawType();
             var dirtyType =
-                TryGetTypeOverride(fullName) ??
-                TryGetEnumType(element, fullName, isArray: rawType == "array") ??
-                TryGetType(propName, rawType);
+                GetTypeOverride(fullName) ??
+                GetEnumType(element, fullName, isArray: rawType == "array") ??
+                GetType(propName, rawType);
 
             if(dirtyType == null)
                 throw new Exception("Unable to resolve property type");
@@ -41,7 +41,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             ClrType = StripSpecialType(dirtyType);
         }
 
-        static string TryGetType(string propName, string rawTypeString) {
+        static string GetType(string propName, string rawTypeString) {
             var rawTypes = rawTypeString.Split('|');
             bool
                 canBeString = rawTypes.Any(t => t == "string"),
@@ -86,14 +86,14 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return null;
         }
 
-        static string TryGetTypeOverride(string fullName) {
+        static string GetTypeOverride(string fullName) {
             if(_overrideTable.ContainsKey(fullName))
                 return _overrideTable[fullName];
 
             return null;
         }
 
-        string TryGetEnumType(XElement element, string fullName, bool isArray) {
+        string GetEnumType(XElement element, string fullName, bool isArray) {
             if(!EnumRegistry.IsEnum(element, fullName))
                 return null;
 
