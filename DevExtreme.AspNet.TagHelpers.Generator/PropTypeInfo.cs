@@ -29,7 +29,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public PropTypeInfo(XElement element, string fullName, string propName) {
             var rawType = element.GetRawType();
             var dirtyType =
-                TryGetPredefinedType(fullName) ??
+                TryGetTypeOverride(fullName) ??
                 TryGetEnumType(element, fullName, isArray: rawType == "array") ??
                 TryGetType(propName, rawType);
 
@@ -86,7 +86,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return null;
         }
 
-        static string TryGetPredefinedType(string fullName) {
+        static string TryGetTypeOverride(string fullName) {
             if(_overrideTable.ContainsKey(fullName))
                 return _overrideTable[fullName];
 
