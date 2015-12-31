@@ -7,13 +7,12 @@ using System.Xml.Linq;
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
     public class Descriptor {
+        IDictionary<string, Descriptor> _innerDescriptors;
 
         public string RawName;
         public string RawType;
         public string Summary;
         public bool IsChildTag;
-
-        IDictionary<string, Descriptor> _innerDescriptors;
 
         public Descriptor(XElement element) {
             RawName = element.GetName();
