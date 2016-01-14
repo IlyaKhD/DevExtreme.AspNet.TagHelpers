@@ -43,7 +43,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         static void ModifyDatasourceOwner(TagInfo tag) {
             var datasourceName = "dataSource";
-            if(tag.Descriptor.GetInnerDescriptor(datasourceName) == null)
+            if(!tag.Descriptor.HasInnerDescriptor(datasourceName))
                 return;
 
             tag.Descriptor.RemoveInnerDescriptor(datasourceName);

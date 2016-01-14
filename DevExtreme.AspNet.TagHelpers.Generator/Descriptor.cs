@@ -44,7 +44,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public string[] AllowedValues;
 
-        public Descriptor GetInnerDescriptor(string name) => _innerDescriptors.ContainsKey(name) ? _innerDescriptors[name] : null;
+        public bool HasInnerDescriptor(string name) => _innerDescriptors.ContainsKey(name);
 
         public IEnumerable<Descriptor> GetAttributes() => _innerDescriptors.Values.Where(d => !d.IsChildTag);
 
