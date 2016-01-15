@@ -134,7 +134,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 .Select(p => p.Key.Substring((settingPrefix).Length))
                 .Where(name => !name.Contains("_"));
 
-#warning have to copy Descriptor before removing since InnerDescriptors are shared (no deep copy)
             tag.Descriptor = new Descriptor(tag.Descriptor);
 
             foreach(var item in innerElementsToRemove)
