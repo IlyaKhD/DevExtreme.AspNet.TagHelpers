@@ -132,21 +132,21 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             AppendEmptyLine();
         }
 
-        public void AppendProp(TagPropertyInfo prop, PropTypeInfo propType) {
-            AppendSummary(prop.GetSummaryText());
+        public void AppendProp(Descriptor descriptor, PropTypeInfo propType) {
+            AppendSummary(descriptor.Summary);
 
-            var customAttr = GetCustomAttr(prop.GetName());
+            var propName = descriptor.GetCamelCaseName();
+
+            var customAttr = GetCustomAttr(propName);
             if(!String.IsNullOrEmpty(customAttr))
                 AppendAttribute("HtmlAttributeName", $"\"{customAttr}\"");
 
-            var name = prop.GetName();
-
             AppendGeneratedAttribute();
-            Append($"public {propType.ClrType} {name} ");
+            Append($"public {propType.ClrType} {propName} ");
             StartBlock();
 
-            AppendLine($"get {{ return GetConfigValue<{propType.ClrType}>(\"{name}\"); }}");
-            Append($"set {{ SetConfigValue(\"{name}\", ");
+            AppendLine($"get {{ return GetConfigValue<{propType.ClrType}>(\"{propName}\"); }}");
+            Append($"set {{ SetConfigValue(\"{propName}\", ");
 
             if(propType.IsDomTemplate)
                 Append("Utils.WrapDomTemplateValue(value)");

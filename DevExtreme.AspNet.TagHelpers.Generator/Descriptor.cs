@@ -42,6 +42,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             _innerDescriptors = d._innerDescriptors.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
         }
 
+        public string GetCamelCaseName() => Utils.ToCamelCase(RawName);
+
         public string[] AllowedValues;
 
         public bool HasInnerDescriptor(string name) => _innerDescriptors.ContainsKey(name);

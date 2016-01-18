@@ -53,11 +53,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return childTags.Concat(ExtraChildRestrictions).OrderBy(t => t).ToArray();
         }
 
-        public TagPropertyInfo[] GenerateProperties() {
-            return Descriptor.GetAttributes()
-                .Select(d => new TagPropertyInfo(d))
-                .OrderBy(p => p.GetName())
-                .ToArray();
+        public Descriptor[] GenerateProperties() {
+            return Descriptor.GetAttributes().OrderBy(d => d.RawName).ToArray();
         }
     }
 
