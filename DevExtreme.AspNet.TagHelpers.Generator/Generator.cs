@@ -35,7 +35,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             builder.AppendUsings(DEFAULT_USINGS);
             builder.StartNamespaceBlock(tag.Namespace);
 
-            builder.AppendSummary(tag.GetSummaryText());
+            builder.AppendSummary(tag.Descriptor.Summary);
 
             if(!isPartial)
                 builder.AppendGeneratedAttribute();
@@ -53,7 +53,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             builder.AppendEmptyLine();
 
             if(generateKeyProps) {
-                builder.AppendKeyProperty("Key", tag.Key);
+                builder.AppendKeyProperty("Key", tag.Descriptor.RawName);
                 builder.AppendKeyProperty("FullKey", tag.GetFullKey());
             }
 

@@ -87,12 +87,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             var specificSeriesElement = new Descriptor(tag.Descriptor);
             specificSeriesElement.RemoveInnerDescriptor("type");
 
-            foreach(var name in _seriesNames) {
-                var descriptor = new Descriptor(specificSeriesElement);
-                descriptor.Name = name;
-
-                tag.Descriptor.SetInnnerDescriptor(descriptor.Name, descriptor);
-            }
+            foreach(var name in _seriesNames)
+                tag.Descriptor.SetInnnerDescriptor(name, new Descriptor(specificSeriesElement, name));
         }
 
         static void RemoveSeriesSpecificSettings(TagInfo tag) {

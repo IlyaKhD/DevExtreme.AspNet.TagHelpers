@@ -10,7 +10,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         readonly TagInfoPreProcessor _preProcessor;
 
         public Descriptor Descriptor;
-        public string Key;
         public readonly IEnumerable<string> Namespace;
         public readonly string ParentTagName;
         public string BaseClassName = "HierarchicalTagHelper";
@@ -20,7 +19,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             Namespace = ns;
             ParentTagName = parentTagName;
             Descriptor = descriptor;
-            Key = descriptor.Name;
 
             _preProcessor = preProcessor;
             preProcessor.Process(this);
@@ -39,8 +37,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public string GetClassName() {
             return GetNamespaceEntry() + "TagHelper";
         }
-
-        public string GetSummaryText() => Descriptor.Summary;
 
         public TagInfo[] GenerateChildTags() {
             return Descriptor.GetChildTags()

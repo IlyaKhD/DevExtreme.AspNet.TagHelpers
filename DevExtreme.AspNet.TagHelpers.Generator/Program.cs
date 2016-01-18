@@ -95,7 +95,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             element.GetPropElement("store").Remove();
 
             var result = new TagInfo(new Descriptor(element), tagInfoPreProcessor, ns.Concat("Data"), parentTagName: "dx-pivot-grid");
-            result.Key = "dataSource";
             result.BaseClassName = null;
 
             return result;

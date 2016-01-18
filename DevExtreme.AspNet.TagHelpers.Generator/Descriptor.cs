@@ -35,6 +35,12 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             }
         }
 
+        public Descriptor(Descriptor d, string rawNameOverride)
+            : this(d) {
+            RawName = rawNameOverride;
+            Name = RawName;
+        }
+
         public Descriptor(Descriptor d) {
             RawType = d.RawType;
             RawName = d.RawName;
