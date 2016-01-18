@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
@@ -134,7 +135,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public void AppendProp(TagPropertyInfo prop, PropTypeInfo propType) {
             AppendSummary(prop.GetSummaryText());
 
-            var customAttr = prop.GetCustomAttrName();
+            var customAttr = GetCustomAttr(prop.GetName());
             if(!String.IsNullOrEmpty(customAttr))
                 AppendAttribute("HtmlAttributeName", $"\"{customAttr}\"");
 
@@ -158,6 +159,14 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             AppendLine("); }");
             EndBlock();
             AppendEmptyLine();
+        }
+
+        string GetCustomAttr(string name) {
+            var prefix = "Data";
+
+            return Regex.IsMatch(name, $"^{prefix}[A-Z]")
+                ? prefix.ToLower() + Utils.ToKebabCase(name.Substring(prefix.Length))
+                : null;
         }
 
         public override string ToString() {
