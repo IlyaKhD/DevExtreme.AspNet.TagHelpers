@@ -58,7 +58,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             }
 
             foreach(var descriptor in tag.GenerateProperties()) {
-                var propTypeInfo = CreateTypeInfo(descriptor, tag.GetFullKey());
+                var propTypeInfo = new PropTypeInfo(descriptor, parentName: tag.GetFullKey());
 
                 CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + descriptor.GetCamelCaseName(), propTypeInfo.ClrType);
                 builder.AppendProp(descriptor, propTypeInfo);
@@ -69,12 +69,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             builder.EndBlock();
 
             WriteToFile(tag.Namespace, className, builder.ToString());
-        }
-
-        public PropTypeInfo CreateTypeInfo(Descriptor descriptor, string parentName) {
-            var propName = descriptor.GetCamelCaseName();
-
-            return new PropTypeInfo(descriptor, $"{parentName}.{propName}", propName);
         }
 
         public void GenerateTargetElementsClass(IEnumerable<string> ns, string className, IEnumerable<TargetElementInfo> targets) {

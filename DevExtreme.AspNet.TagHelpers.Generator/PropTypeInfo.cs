@@ -26,8 +26,10 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public readonly bool IsDomTemplate;
         public readonly bool IsRawString;
 
-        public PropTypeInfo(Descriptor descriptor, string fullName, string propName) {
+        public PropTypeInfo(Descriptor descriptor, string parentName) {
             var rawType = descriptor.RawType;
+            var propName = descriptor.GetCamelCaseName();
+            var fullName = $"{parentName}.{propName}";
             var dirtyType =
                 GetTypeOverride(fullName) ??
                 GetEnumType(descriptor, fullName, isArray: rawType == "array") ??
