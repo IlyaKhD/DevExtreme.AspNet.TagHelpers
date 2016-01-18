@@ -37,7 +37,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             if(!CollectionItemsRegistry.IsKnownCollectionItem(tag.GetFullKey()))
                 throw new Exception($"New collection suspect detected: \"{tag.GetFullKey()}\"");
 
-            tag.Descriptor.RawName = (CollectionItemsRegistry.GetModifiedElementName(tag.Descriptor.RawName));
+            tag.Descriptor.Name = (CollectionItemsRegistry.GetModifiedElementName(tag.Descriptor.Name));
             tag.BaseClassName = "CollectionItemTagHelper";
         }
 
@@ -89,9 +89,9 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             foreach(var name in _seriesNames) {
                 var descriptor = new Descriptor(specificSeriesElement);
-                descriptor.RawName = name;
+                descriptor.Name = name;
 
-                tag.Descriptor.SetInnnerDescriptor(descriptor.RawName, descriptor);
+                tag.Descriptor.SetInnnerDescriptor(descriptor.Name, descriptor);
             }
         }
 
@@ -158,7 +158,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 };
 
             var migratingDescriptors = tag.Descriptor.GetChildTags()
-                .Where(d => fullNames.Contains(tag.GetFullKey() + "." + Utils.ToCamelCase(d.RawName)))
+                .Where(d => fullNames.Contains(tag.GetFullKey() + "." + Utils.ToCamelCase(d.Name)))
                 .ToArray();
 
             foreach(var descriptor in migratingDescriptors)

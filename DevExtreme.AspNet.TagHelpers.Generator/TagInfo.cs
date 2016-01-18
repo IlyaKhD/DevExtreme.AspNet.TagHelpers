@@ -20,16 +20,16 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             Namespace = ns;
             ParentTagName = parentTagName;
             Descriptor = descriptor;
-            Key = descriptor.RawName;
+            Key = descriptor.Name;
 
             _preProcessor = preProcessor;
             preProcessor.Process(this);
         }
 
-        public string GetTagName() => Utils.ToKebabCase(Descriptor.RawName);
+        public string GetTagName() => Utils.ToKebabCase(Descriptor.Name);
 
         public string GetNamespaceEntry() {
-            return Descriptor.RawName.StartsWith("dx") ? Descriptor.RawName : Utils.ToCamelCase(Descriptor.RawName);
+            return Descriptor.Name.StartsWith("dx") ? Descriptor.Name : Utils.ToCamelCase(Descriptor.Name);
         }
 
         public string GetFullKey() {
@@ -54,7 +54,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         public Descriptor[] GenerateProperties() {
-            return Descriptor.GetAttributes().OrderBy(d => d.RawName).ToArray();
+            return Descriptor.GetAttributes().OrderBy(d => d.Name).ToArray();
         }
     }
 

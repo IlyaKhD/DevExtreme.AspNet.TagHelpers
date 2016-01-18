@@ -9,14 +9,16 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
     public class Descriptor {
         IDictionary<string, Descriptor> _innerDescriptors;
 
-        public string RawName;
-        public string RawType;
+        public readonly string RawType;
+        public readonly string RawName;
+        public string Name;
         public string Summary;
         public bool IsChildTag;
 
         public Descriptor(XElement element) {
-            RawName = element.GetName();
             RawType = element.Attribute("Type")?.Value;
+            RawName = element.GetName();
+            Name = RawName;
             Summary = Utils.NormalizeDescription(element.GetDescription());
             IsChildTag = element.IsChildTagElement();
 
@@ -29,20 +31,21 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             if(element.Element("Properties") != null) {
                 _innerDescriptors = element.Element("Properties").Elements("IntellisenseObjectPropertyInfo")
                     .Select(e => new Descriptor(e))
-                    .ToDictionary(d => d.RawName, d => d, StringComparer.OrdinalIgnoreCase);
+                    .ToDictionary(d => d.Name, d => d, StringComparer.OrdinalIgnoreCase);
             }
         }
 
         public Descriptor(Descriptor d) {
-            RawName = d.RawName;
             RawType = d.RawType;
+            RawName = d.RawName;
+            Name = d.Name;
             Summary = d.Summary;
             IsChildTag = d.IsChildTag;
             AllowedValues = d.AllowedValues;
             _innerDescriptors = d._innerDescriptors.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
         }
 
-        public string GetCamelCaseName() => Utils.ToCamelCase(RawName);
+        public string GetCamelCaseName() => Utils.ToCamelCase(Name);
 
         public string[] AllowedValues;
 
