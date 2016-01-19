@@ -32,19 +32,10 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return Descriptor.GetCamelCaseName() + "TagHelper";
         }
 
-        public TagInfo[] GenerateChildTags() {
+        public IEnumerable<TagInfo> GetChildTags() {
             return Descriptor.GetChildTags()
                 .Select(d => new TagInfo(d, _preProcessor, Namespace.Concat(Descriptor.GetCamelCaseName()), parentTagName: Descriptor.GetKebabCaseName()))
-                .OrderBy(t => t.Descriptor.RawName)
-                .ToArray();
-        }
-
-        public string[] GetChildRestrictions(IEnumerable<string> childTags) {
-            return childTags.Concat(ExtraChildRestrictions).OrderBy(t => t).ToArray();
-        }
-
-        public Descriptor[] GenerateProperties() {
-            return Descriptor.GetAttributes().OrderBy(d => d.Name).ToArray();
+                .OrderBy(t => t.Descriptor.RawName);
         }
     }
 

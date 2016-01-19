@@ -21,12 +21,12 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public void GenerateClass(TagInfo tag, string customClassName = null, bool isPartial = false, bool generateKeyProps = true) {
             var childTags = new List<string>();
-            foreach(var child in tag.GenerateChildTags()) {
+            foreach(var child in tag.GetChildTags()) {
                 childTags.Add(child.Descriptor.GetKebabCaseName());
                 GenerateClass(child);
             }
-
-            var childRestrictions = tag.GetChildRestrictions(childTags);
+            
+            var childRestrictions = childTags.Concat(tag.ExtraChildRestrictions).OrderBy(t => t);
             var className = customClassName ?? tag.GetClassName();
 
             var builder = new ClassBuilder();
@@ -57,11 +57,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 builder.AppendKeyProperty("FullKey", tag.GetFullKey());
             }
 
-            foreach(var descriptor in tag.GenerateProperties()) {
-                var propTypeInfo = new PropTypeInfo(descriptor, parentName: tag.GetFullKey());
+            foreach(var attrDescriptor in tag.Descriptor.GetAttributes().OrderBy(d => d.Name)) {
+                var propTypeInfo = new PropTypeInfo(attrDescriptor, parentName: tag.GetFullKey());
 
-                CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + descriptor.GetCamelCaseName(), propTypeInfo.ClrType);
-                builder.AppendProp(descriptor, propTypeInfo);
+                CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + attrDescriptor.GetCamelCaseName(), propTypeInfo.ClrType);
+                builder.AppendProp(attrDescriptor, propTypeInfo);
             }
 
             builder.EndBlock();
