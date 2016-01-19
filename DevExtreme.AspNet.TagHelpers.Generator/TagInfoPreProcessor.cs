@@ -153,7 +153,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                     "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Scale.TickInterval"
                 };
 
-            var migratingDescriptors = tag.Descriptor.GetChildTags()
+            var migratingDescriptors = tag.Descriptor.GetChildTagDescriptors()
                 .Where(d => fullNames.Contains(tag.GetFullKey() + "." + Utils.ToCamelCase(d.Name)))
                 .ToArray();
 

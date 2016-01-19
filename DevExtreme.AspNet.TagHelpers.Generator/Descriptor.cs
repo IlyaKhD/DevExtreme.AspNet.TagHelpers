@@ -56,9 +56,9 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public string GetKebabCaseName() => Utils.ToKebabCase(Name);
 
-        public IEnumerable<Descriptor> GetAttributes() => _innerDescriptors.Values.Where(d => !d.IsChildTag);
+        public IEnumerable<Descriptor> GetAttributeDescriptors() => _innerDescriptors.Values.Where(d => !d.IsChildTag);
 
-        public IEnumerable<Descriptor> GetChildTags() => _innerDescriptors.Values.Where(d => d.IsChildTag);
+        public IEnumerable<Descriptor> GetChildTagDescriptors() => _innerDescriptors.Values.Where(d => d.IsChildTag);
 
 
         public bool HasInnerDescriptor(string name) => _innerDescriptors.ContainsKey(name);

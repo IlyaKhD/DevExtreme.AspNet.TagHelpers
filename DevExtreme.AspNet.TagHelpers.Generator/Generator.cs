@@ -57,7 +57,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 builder.AppendKeyProperty("FullKey", tag.GetFullKey());
             }
 
-            foreach(var attrDescriptor in tag.Descriptor.GetAttributes().OrderBy(d => d.Name)) {
+            foreach(var attrDescriptor in tag.Descriptor.GetAttributeDescriptors().OrderBy(d => d.Name)) {
                 var propTypeInfo = new PropTypeInfo(attrDescriptor, parentName: tag.GetFullKey());
 
                 CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + attrDescriptor.GetCamelCaseName(), propTypeInfo.ClrType);

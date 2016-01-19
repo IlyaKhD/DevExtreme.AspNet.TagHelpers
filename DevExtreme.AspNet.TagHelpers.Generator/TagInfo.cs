@@ -33,7 +33,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         public IEnumerable<TagInfo> GetChildTags() {
-            return Descriptor.GetChildTags()
+            return Descriptor.GetChildTagDescriptors()
                 .Select(d => new TagInfo(d, _preProcessor, Namespace.Concat(Descriptor.GetCamelCaseName()), parentTagName: Descriptor.GetKebabCaseName()))
                 .OrderBy(t => t.Descriptor.RawName);
         }
