@@ -34,8 +34,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             if(!CollectionItemsRegistry.SuspectCollectionItem(tag.Descriptor.RawType))
                 return;
 
-            if(!CollectionItemsRegistry.IsKnownCollectionItem(tag.GetFullKey()))
-                throw new Exception($"New collection suspect detected: \"{tag.GetFullKey()}\"");
+            if(!CollectionItemsRegistry.IsKnownCollectionItem(tag.GetFullName()))
+                throw new Exception($"New collection suspect detected: \"{tag.GetFullName()}\"");
 
             tag.Descriptor.Name = (CollectionItemsRegistry.GetModifiedElementName(tag.Descriptor.Name));
             tag.BaseClassName = "CollectionItemTagHelper";
@@ -53,17 +53,17 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         void ModifyRangeSelectorChartOptions(TagInfo tag) {
-            if(tag.GetFullKey() == "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings") {
+            if(tag.GetFullName() == "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings") {
                 _commonSeriesSettingsSample = new Descriptor(tag.Descriptor);
                 return;
             }
 
-            if(tag.GetFullKey() == "DevExtreme.AspNet.TagHelpers.dxChart.Series") {
+            if(tag.GetFullName() == "DevExtreme.AspNet.TagHelpers.dxChart.Series") {
                 _seriesSample = new Descriptor(tag.Descriptor);
                 return;
             }
 
-            if(tag.GetFullKey() == "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart") {
+            if(tag.GetFullName() == "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart") {
                 tag.Descriptor.SetInnnerDescriptor("commonSeriesSettings", new Descriptor(_commonSeriesSettingsSample));
                 tag.Descriptor.SetInnnerDescriptor("series", new Descriptor(_seriesSample));
             }
@@ -77,8 +77,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             };
 
         static void ModifyCommonSeriesSettings(TagInfo tag) {
-            if(tag.GetFullKey() != "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings" &&
-                tag.GetFullKey() != "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart.CommonSeriesSettings")
+            if(tag.GetFullName() != "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings" &&
+                tag.GetFullName() != "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart.CommonSeriesSettings")
                 return;
 
             foreach(var series in _seriesNames)
@@ -92,10 +92,10 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         static void RemoveSeriesSpecificSettings(TagInfo tag) {
-            var fullKey = tag.GetFullKey();
+            var fullName = tag.GetFullName();
             string compoundName =
-                GetWithoutPrefixOrDefault(fullKey, "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings.") ??
-                GetWithoutPrefixOrDefault(fullKey, "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart.CommonSeriesSettings.");
+                GetWithoutPrefixOrDefault(fullName, "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings.") ??
+                GetWithoutPrefixOrDefault(fullName, "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart.CommonSeriesSettings.");
 
             if(compoundName == null)
                 return;
@@ -154,7 +154,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 };
 
             var migratingDescriptors = tag.Descriptor.GetChildTagDescriptors()
-                .Where(d => fullNames.Contains(tag.GetFullKey() + "." + Utils.ToCamelCase(d.Name)))
+                .Where(d => fullNames.Contains(tag.GetFullName() + "." + Utils.ToCamelCase(d.Name)))
                 .ToArray();
 
             foreach(var descriptor in migratingDescriptors)

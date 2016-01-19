@@ -24,7 +24,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             preProcessor.Process(this);
         }
 
-        public string GetFullKey() {
+        public string GetFullName() {
             return String.Join(".", Namespace) + "." + Descriptor.GetCamelCaseName();
         }
 

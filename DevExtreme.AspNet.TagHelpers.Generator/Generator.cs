@@ -54,13 +54,13 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             if(generateKeyProps) {
                 builder.AppendKeyProperty("Key", tag.Descriptor.RawName);
-                builder.AppendKeyProperty("FullKey", tag.GetFullKey());
+                builder.AppendKeyProperty("FullKey", tag.GetFullName());
             }
 
             foreach(var attrDescriptor in tag.Descriptor.GetAttributeDescriptors().OrderBy(d => d.Name)) {
-                var propTypeInfo = new PropTypeInfo(attrDescriptor, parentName: tag.GetFullKey());
+                var propTypeInfo = new PropTypeInfo(attrDescriptor, parentName: tag.GetFullName());
 
-                CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + attrDescriptor.GetCamelCaseName(), propTypeInfo.ClrType);
+                CompetitivePropsRegistry.Register(tag.GetFullName() + "." + attrDescriptor.GetCamelCaseName(), propTypeInfo.ClrType);
                 builder.AppendProp(attrDescriptor, propTypeInfo);
             }
 
