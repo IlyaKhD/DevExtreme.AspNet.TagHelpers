@@ -11,10 +11,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public readonly string RawType;
         public readonly string RawName;
+        public readonly string Summary;
+        public readonly string[] AllowedValues;
+
         public string Name;
-        public string Summary;
         public bool IsChildTag;
-        public string[] AllowedValues;
 
         public Descriptor(XElement element) {
             RawType = element.Attribute("Type")?.Value;
