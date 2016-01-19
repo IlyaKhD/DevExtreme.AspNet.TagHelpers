@@ -24,8 +24,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             preProcessor.Process(this);
         }
 
-        public string GetTagName() => Utils.ToKebabCase(Descriptor.Name);
-
         public string GetNamespaceEntry() {
             return Descriptor.Name.StartsWith("dx") ? Descriptor.Name : Utils.ToCamelCase(Descriptor.Name);
         }
@@ -40,8 +38,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public TagInfo[] GenerateChildTags() {
             return Descriptor.GetChildTags()
-                .Select(d => new TagInfo(d, _preProcessor, Namespace.Concat(GetNamespaceEntry()), GetTagName()))
-                .OrderBy(t => t.GetTagName())
+                .Select(d => new TagInfo(d, _preProcessor, Namespace.Concat(GetNamespaceEntry()), parentTagName: Descriptor.GetKebabCaseName()))
+                .OrderBy(t => t.Descriptor.RawName)
                 .ToArray();
         }
 

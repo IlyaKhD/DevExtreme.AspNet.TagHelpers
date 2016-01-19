@@ -22,7 +22,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public void GenerateClass(TagInfo tag, string customClassName = null, bool isPartial = false, bool generateKeyProps = true) {
             var childTags = new List<string>();
             foreach(var child in tag.GenerateChildTags()) {
-                childTags.Add(child.GetTagName());
+                childTags.Add(child.Descriptor.GetKebabCaseName());
                 GenerateClass(child);
             }
 
@@ -41,7 +41,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 builder.AppendGeneratedAttribute();
 
             builder.AppendHtmlTargetAttribute(new TargetElementInfo {
-                Tag = tag.GetTagName(),
+                Tag = tag.Descriptor.GetKebabCaseName(),
                 ParentTag = tag.ParentTagName,
                 IsSelfClosing = !childRestrictions.Any()
             });

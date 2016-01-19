@@ -27,7 +27,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             tag.ExtraChildRestrictions.Add("script");
             tag.BaseClassName = "WidgetTagHelper";
-            TargetElementsRegistry.InnerScriptTargets.Add(tag.GetTagName());
+            TargetElementsRegistry.InnerScriptTargets.Add(tag.Descriptor.GetKebabCaseName());
         }
 
         static void ModifyCollectionItem(TagInfo tag) {
@@ -49,7 +49,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             tag.Descriptor.RemoveInnerDescriptor(datasourceName);
             tag.ExtraChildRestrictions.Add("datasource");
 
-            TargetElementsRegistry.DatasourceTargets.Add(tag.GetTagName());
+            TargetElementsRegistry.DatasourceTargets.Add(tag.Descriptor.GetKebabCaseName());
         }
 
         void ModifyRangeSelectorChartOptions(TagInfo tag) {

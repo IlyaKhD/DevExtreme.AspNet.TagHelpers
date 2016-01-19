@@ -53,6 +53,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public string GetCamelCaseName() => Utils.ToCamelCase(Name);
 
+        public string GetKebabCaseName() => Utils.ToKebabCase(Name);
+
         public string[] AllowedValues;
 
         public bool HasInnerDescriptor(string name) => _innerDescriptors.ContainsKey(name);
