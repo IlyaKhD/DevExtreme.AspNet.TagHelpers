@@ -69,7 +69,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return XDocument.Load($"meta/IntellisenseData_{DX_VERSION}.xml")
                 .Root
                 .Elements("IntellisenseObjectInfo")
-                .Where(o => names.Contains(o.GetName()));
+                .Where(o => names.Contains(o.Attribute("Name").Value));
         }
 
         static TargetElementInfo CreateInnerScriptTarget(string parentTagName) {
@@ -91,14 +91,21 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         static TagInfo CreatePivotGridDatasourceTag(TagInfoPreProcessor tagInfoPreProcessor, IEnumerable<string> ns) {
             var xDoc = XDocument.Load($"meta/IntellisenseData_{DX_VERSION}_spec.xml");
-            var element = new XElement(xDoc.Root.Elements("IntellisenseObjectInfo").Single(el => el.GetName() == "PivotGridDataSource"));
-            element.SetName("datasource");
-            element.GetPropElement("store").Remove();
+            var element = new XElement(xDoc.Root.Elements("IntellisenseObjectInfo").Single(el => el.Attribute("Name").Value == "PivotGridDataSource"));
 
-            var result = TagInfo.Create(new Descriptor(element), tagInfoPreProcessor, ns.Concat("Data"));
+            GetPropElement(element, "store").Remove();
+
+            var result = TagInfo.Create(new Descriptor(element, "datasource"), tagInfoPreProcessor, ns.Concat("Data"));
             result.BaseClassName = null;
 
             return result;
+        }
+
+        static XElement GetPropElement(XElement el, string propName) {
+            return el
+                .Element("Properties")
+                .Elements("IntellisenseObjectPropertyInfo")
+                .FirstOrDefault(e => propName.Equals(e.Attribute("Name").Value, StringComparison.OrdinalIgnoreCase));
         }
     }
 

@@ -7,13 +7,12 @@ using System.Xml.Linq;
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
     class TagInfo {
-        readonly TagInfoPreProcessor _preProcessor;
-        string _name;
+        TagInfoPreProcessor _preProcessor;
 
         public Descriptor Descriptor;
-        public readonly IEnumerable<string> Namespace;
+        public IEnumerable<string> Namespace;
         public string BaseClassName = "HierarchicalTagHelper";
-        public readonly List<string> ExtraChildRestrictions = new List<string>();
+        public List<string> ExtraChildRestrictions = new List<string>();
 
         public static TagInfo Create(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns) {
             return new TagInfo(descriptor, preProcessor, ns, isWidget: false);
@@ -32,6 +31,12 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             preProcessor.Process(this, isWidget);
         }
 
+        public string Name { get; private set; }
+        public string CamelCaseName { get; private set; }
+        public string ClassName { get; private set; }
+        public string FullName { get; private set; }
+        public string TagName { get; private set; }
+
         public void SetName(string name) {
             Name = name;
             TagName = Utils.ToKebabCase(name);
@@ -39,12 +44,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             ClassName = CamelCaseName + "TagHelper";
             FullName = String.Join(".", Namespace) + "." + CamelCaseName;
         }
-
-        public string Name { get; private set; }
-        public string CamelCaseName { get; private set; }
-        public string ClassName { get; private set; }
-        public string FullName { get; private set; }
-        public string TagName { get; private set; }
 
         public IEnumerable<TagInfo> GetChildTags() {
             return Descriptor.GetChildTagDescriptors()
