@@ -14,13 +14,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public readonly string Summary;
         public readonly string[] AllowedValues;
 
-        public string Name;
         public bool IsChildTag;
 
         public Descriptor(XElement element) {
             RawType = element.Attribute("Type")?.Value;
             RawName = element.GetName();
-            Name = RawName;
             Summary = Utils.NormalizeDescription(element.GetDescription());
             IsChildTag = element.IsChildTagElement();
 
@@ -33,29 +31,23 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             if(element.Element("Properties") != null) {
                 _innerDescriptors = element.Element("Properties").Elements("IntellisenseObjectPropertyInfo")
                     .Select(e => new Descriptor(e))
-                    .ToDictionary(d => d.Name, d => d, StringComparer.OrdinalIgnoreCase);
+                    .ToDictionary(d => d.RawName, d => d, StringComparer.OrdinalIgnoreCase);
             }
         }
 
         public Descriptor(Descriptor d, string rawNameOverride)
             : this(d) {
             RawName = rawNameOverride;
-            Name = RawName;
         }
 
         public Descriptor(Descriptor d) {
             RawType = d.RawType;
             RawName = d.RawName;
-            Name = d.Name;
             Summary = d.Summary;
             IsChildTag = d.IsChildTag;
             AllowedValues = d.AllowedValues;
             _innerDescriptors = d._innerDescriptors.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
         }
-
-        public string GetCamelCaseName() => Name.StartsWith("dx") ? Name : Utils.ToCamelCase(Name);
-
-        public string GetKebabCaseName() => Utils.ToKebabCase(Name);
 
         public IEnumerable<Descriptor> GetAttributeDescriptors() => _innerDescriptors.Values.Where(d => !d.IsChildTag);
 

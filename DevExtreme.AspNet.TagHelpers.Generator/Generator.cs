@@ -19,15 +19,15 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             _outputRoot = outputRoot;
         }
 
-        public void GenerateClass(TagInfo tag, string customClassName = null, bool isPartial = false, bool generateKeyProps = true) {
+        public void GenerateClass(TagInfo tag, string parentTag, string customClassName = null, bool isPartial = false, bool generateKeyProps = true) {
             var childTags = new List<string>();
             foreach(var child in tag.GetChildTags()) {
-                childTags.Add(child.Descriptor.GetKebabCaseName());
-                GenerateClass(child);
+                childTags.Add(Utils.ToKebabCase(child.Name));
+                GenerateClass(child, parentTag: tag.TagName);
             }
             
             var childRestrictions = childTags.Concat(tag.ExtraChildRestrictions).OrderBy(t => t);
-            var className = customClassName ?? tag.GetClassName();
+            var className = customClassName ?? tag.ClassName;
 
             var builder = new ClassBuilder();
 
@@ -41,8 +41,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                 builder.AppendGeneratedAttribute();
 
             builder.AppendHtmlTargetAttribute(new TargetElementInfo {
-                Tag = tag.Descriptor.GetKebabCaseName(),
-                ParentTag = tag.ParentTagName,
+                Tag = tag.TagName,
+                ParentTag = parentTag,
                 IsSelfClosing = !childRestrictions.Any()
             });
 
@@ -54,13 +54,13 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             if(generateKeyProps) {
                 builder.AppendKeyProperty("Key", tag.Descriptor.RawName);
-                builder.AppendKeyProperty("FullKey", tag.GetFullName());
+                builder.AppendKeyProperty("FullKey", tag.FullName);
             }
 
-            foreach(var attrDescriptor in tag.Descriptor.GetAttributeDescriptors().OrderBy(d => d.Name)) {
-                var propTypeInfo = new PropTypeInfo(attrDescriptor, parentName: tag.GetFullName());
+            foreach(var attrDescriptor in tag.Descriptor.GetAttributeDescriptors().OrderBy(d => d.RawName)) {
+                var propTypeInfo = new PropTypeInfo(attrDescriptor, parentName: tag.FullName);
 
-                CompetitivePropsRegistry.Register(tag.GetFullName() + "." + attrDescriptor.GetCamelCaseName(), propTypeInfo.ClrType);
+                CompetitivePropsRegistry.Register(tag.FullName + "." + Utils.ToCamelCase(attrDescriptor.RawName), propTypeInfo.ClrType);
                 builder.AppendProp(attrDescriptor, propTypeInfo);
             }
 

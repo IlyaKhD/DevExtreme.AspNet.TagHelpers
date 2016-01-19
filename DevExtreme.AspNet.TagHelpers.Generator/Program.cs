@@ -26,7 +26,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             generator.DeleteGeneratedFiles(ns);
 
             foreach(var obj in GetIntellisenseObjectsFor(widgetNames))
-                generator.GenerateClass(new TagInfo(new Descriptor(obj), tagInfoPreProcessor, ns, null));
+                generator.GenerateClass(TagInfo.CreateWidget(new Descriptor(obj), tagInfoPreProcessor, ns), parentTag: null);
 
             generator.GenerateEnums(ns, "Enums", EnumRegistry.KnownEnumns);
 
@@ -56,6 +56,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             generator.GenerateClass(
                 CreatePivotGridDatasourceTag(tagInfoPreProcessor, ns),
+                "dx-pivot-grid",
                 "PivotGridDatasourceTagHelper",
                 isPartial: true,
                 generateKeyProps: false
@@ -94,7 +95,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             element.SetName("datasource");
             element.GetPropElement("store").Remove();
 
-            var result = new TagInfo(new Descriptor(element), tagInfoPreProcessor, ns.Concat("Data"), parentTagName: "dx-pivot-grid");
+            var result = TagInfo.Create(new Descriptor(element), tagInfoPreProcessor, ns.Concat("Data"));
             result.BaseClassName = null;
 
             return result;

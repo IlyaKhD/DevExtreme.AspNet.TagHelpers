@@ -135,7 +135,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public void AppendProp(Descriptor descriptor, PropTypeInfo propType) {
             AppendSummary(descriptor.Summary);
 
-            var propName = descriptor.GetCamelCaseName();
+            var propName = Utils.ToCamelCase(descriptor.RawName);
 
             var customAttr = GetCustomAttr(propName);
             if(!String.IsNullOrEmpty(customAttr))

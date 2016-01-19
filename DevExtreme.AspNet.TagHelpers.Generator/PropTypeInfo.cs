@@ -28,7 +28,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public PropTypeInfo(Descriptor descriptor, string parentName) {
             var rawType = descriptor.RawType;
-            var propName = descriptor.GetCamelCaseName();
+            var propName = Utils.ToCamelCase(descriptor.RawName);
             var fullName = $"{parentName}.{propName}";
             var dirtyType =
                 GetTypeOverride(fullName) ??
