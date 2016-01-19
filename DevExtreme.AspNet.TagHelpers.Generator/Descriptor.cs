@@ -14,6 +14,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public string Name;
         public string Summary;
         public bool IsChildTag;
+        public string[] AllowedValues;
 
         public Descriptor(XElement element) {
             RawType = element.Attribute("Type")?.Value;
@@ -55,13 +56,12 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public string GetKebabCaseName() => Utils.ToKebabCase(Name);
 
-        public string[] AllowedValues;
-
-        public bool HasInnerDescriptor(string name) => _innerDescriptors.ContainsKey(name);
-
         public IEnumerable<Descriptor> GetAttributes() => _innerDescriptors.Values.Where(d => !d.IsChildTag);
 
         public IEnumerable<Descriptor> GetChildTags() => _innerDescriptors.Values.Where(d => d.IsChildTag);
+
+
+        public bool HasInnerDescriptor(string name) => _innerDescriptors.ContainsKey(name);
 
         public void SetInnnerDescriptor(string name, Descriptor descriptor) => _innerDescriptors[name] = descriptor;
 
