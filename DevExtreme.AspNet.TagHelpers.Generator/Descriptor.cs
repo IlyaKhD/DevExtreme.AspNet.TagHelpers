@@ -52,7 +52,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             _innerDescriptors = d._innerDescriptors.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
         }
 
-        public string GetCamelCaseName() => Utils.ToCamelCase(Name);
+        public string GetCamelCaseName() => Name.StartsWith("dx") ? Name : Utils.ToCamelCase(Name);
 
         public string GetKebabCaseName() => Utils.ToKebabCase(Name);
 

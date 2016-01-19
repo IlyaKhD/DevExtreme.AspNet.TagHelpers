@@ -24,21 +24,17 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             preProcessor.Process(this);
         }
 
-        public string GetNamespaceEntry() {
-            return Descriptor.Name.StartsWith("dx") ? Descriptor.Name : Utils.ToCamelCase(Descriptor.Name);
-        }
-
         public string GetFullKey() {
-            return String.Join(".", Namespace) + "." + GetNamespaceEntry();
+            return String.Join(".", Namespace) + "." + Descriptor.GetCamelCaseName();
         }
 
         public string GetClassName() {
-            return GetNamespaceEntry() + "TagHelper";
+            return Descriptor.GetCamelCaseName() + "TagHelper";
         }
 
         public TagInfo[] GenerateChildTags() {
             return Descriptor.GetChildTags()
-                .Select(d => new TagInfo(d, _preProcessor, Namespace.Concat(GetNamespaceEntry()), parentTagName: Descriptor.GetKebabCaseName()))
+                .Select(d => new TagInfo(d, _preProcessor, Namespace.Concat(Descriptor.GetCamelCaseName()), parentTagName: Descriptor.GetKebabCaseName()))
                 .OrderBy(t => t.Descriptor.RawName)
                 .ToArray();
         }
