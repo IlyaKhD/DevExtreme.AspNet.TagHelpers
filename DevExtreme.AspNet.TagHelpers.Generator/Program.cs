@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -10,6 +11,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         const string DX_VERSION = "15.2";
 
         static void Main(string[] args) {
+
             var widgetNames = new HashSet<string> {
                 "dxChart",
                 "dxDataGrid",
@@ -25,8 +27,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             var generator = new Generator(outputRoot: "../");
             generator.DeleteGeneratedFiles(ns);
 
-            foreach(var obj in GetIntellisenseObjectsFor(widgetNames))
-                generator.GenerateClass(TagInfo.CreateWidget(new Descriptor(obj), tagInfoPreProcessor, ns), parentTag: null);
+            foreach(var info in GetIntellisenseInfoFor($"meta/IntellisenseData_{DX_VERSION}.xml", widgetNames))
+                generator.GenerateClass(TagInfo.CreateWidget(new Descriptor(info), tagInfoPreProcessor, ns), parentTag: null);
 
             generator.GenerateEnums(ns, "Enums", EnumRegistry.KnownEnumns);
 
@@ -65,11 +67,9 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             Console.WriteLine("Done");
         }
 
-        static IEnumerable<XElement> GetIntellisenseObjectsFor(ICollection<string> names) {
-            return XDocument.Load($"meta/IntellisenseData_{DX_VERSION}.xml")
-                .Root
-                .Elements("IntellisenseObjectInfo")
-                .Where(o => names.Contains(o.Attribute("Name").Value));
+        static IEnumerable<IntellisenseInfo> GetIntellisenseInfoFor(string path, ICollection<string> widgetNames) {
+            return ((IntellisenseRoot)new XmlSerializer(typeof(IntellisenseRoot)).Deserialize(File.OpenRead(path)))
+                .Widgets.Where(w => widgetNames.Contains(w.Name));
         }
 
         static TargetElementInfo CreateInnerScriptTarget(string parentTagName) {
@@ -90,22 +90,13 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         static TagInfo CreatePivotGridDatasourceTag(TagInfoPreProcessor tagInfoPreProcessor, IEnumerable<string> ns) {
-            var xDoc = XDocument.Load($"meta/IntellisenseData_{DX_VERSION}_spec.xml");
-            var element = new XElement(xDoc.Root.Elements("IntellisenseObjectInfo").Single(el => el.Attribute("Name").Value == "PivotGridDataSource"));
+            var info = GetIntellisenseInfoFor($"meta/IntellisenseData_{DX_VERSION}_spec.xml", new[] { "PivotGridDataSource" }).FirstOrDefault();
+            info.RemoveProp("store");
 
-            GetPropElement(element, "store").Remove();
-
-            var result = TagInfo.Create(new Descriptor(element, "datasource"), tagInfoPreProcessor, ns.Concat("Data"));
+            var result = TagInfo.Create(new Descriptor(info, "datasource"), tagInfoPreProcessor, ns.Concat("Data"));
             result.BaseClassName = null;
 
             return result;
-        }
-
-        static XElement GetPropElement(XElement el, string propName) {
-            return el
-                .Element("Properties")
-                .Elements("IntellisenseObjectPropertyInfo")
-                .FirstOrDefault(e => propName.Equals(e.Attribute("Name").Value, StringComparison.OrdinalIgnoreCase));
         }
     }
 

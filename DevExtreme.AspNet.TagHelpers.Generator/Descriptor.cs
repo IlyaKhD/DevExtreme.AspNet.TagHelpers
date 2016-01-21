@@ -16,21 +16,25 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public bool IsChildTag;
 
-        public Descriptor(XElement el) {
-            RawType = el.Attribute("Type")?.Value;
-            RawName = el.Attribute("Name").Value;
-            Summary = Utils.NormalizeDescription(el.Attribute("Description")?.Value);
-            IsChildTag = IsChildTagElement(el);
+        public Descriptor(IntellisenseInfo info) {
+            RawType = info.Type;
+            RawName = info.Name;
+            Summary = Utils.NormalizeDescription(info.Description);
+            IsChildTag = info.Props.Any();
 
-            AllowedValues = el.Element("Values").Elements()
-                .Select(i => i.Attribute("Name").Value.Trim(' ', '\'', '"'))
-                .Where(i => i != "undefined")
-                .OrderBy(i => i)
-                .ToArray();
+            if(info.AllowedValues != null) {
+                AllowedValues = info.AllowedValues
+                    .Select(i => i.Trim(' ', '\'', '"'))
+                    .Where(i => i != "undefined")
+                    .OrderBy(i => i)
+                    .ToArray();
+            } else {
 
-            if(el.Element("Properties") != null) {
-                _innerDescriptors = el.Element("Properties").Elements("IntellisenseObjectPropertyInfo")
-                    .Select(e => new Descriptor(e))
+            }
+
+            if(info.Props.Any()) {
+                _innerDescriptors = info.Props
+                    .Select(i => new Descriptor(i))
                     .ToDictionary(d => d.RawName, d => d, StringComparer.OrdinalIgnoreCase);
             }
         }
@@ -47,8 +51,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             _innerDescriptors = d._innerDescriptors.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
         }
 
-        public Descriptor(XElement element, string rawNameOverride)
-            : this(element) {
+        public Descriptor(IntellisenseInfo info, string rawNameOverride)
+            : this(info) {
             RawName = rawNameOverride;
         }
 
