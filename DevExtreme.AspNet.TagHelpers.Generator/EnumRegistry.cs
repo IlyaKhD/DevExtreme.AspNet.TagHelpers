@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -25,27 +24,20 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             }
         }
 
-        public static bool IsEnum(XElement element, string fullName) {
-            return !KnownNonEnums.Contains(fullName) && element.Element("Values").Elements().Any();
+        public static bool IsEnum(Descriptor descriptor, string fullName) {
+            return !KnownNonEnums.Contains(fullName) && descriptor.AllowedValues.Any();
         }
 
-        public static string GetEnumTypeName(XElement element, string fullName) {
-            ValidateEnum(element, fullName);
+        public static string GetEnumTypeName(Descriptor descriptor, string fullName) {
+            ValidateEnum(descriptor, fullName);
             return InvertedKnownEnumns[fullName];
         }
 
-        static void ValidateEnum(XElement element, string fullName) {
-
-            var intellisenseValues = element.Element("Values").Elements()
-                .Select(i => i.GetName().Trim())
-                .Where(i => i != "undefined")
-                .Select(i => i.Trim('\'', '"'))
-                .OrderBy(i => i)
-                .ToArray();
+        public static void ValidateEnum(Descriptor descriptor, string fullName) {
 
             if(!InvertedKnownEnumns.ContainsKey(fullName)) {
-                var members = intellisenseValues.Select(i => '"' + i + '"');
-                var suggestedEnums = SuggestEnumNames(intellisenseValues);
+                var members = descriptor.AllowedValues.Select(i => '"' + i + '"');
+                var suggestedEnums = SuggestEnumNames(descriptor.AllowedValues);
 
                 var msg = suggestedEnums.Any()
                     ? $"Suggested enums for \"{fullName}\": {String.Join(", ", suggestedEnums)}"
@@ -56,11 +48,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             var knownValues = KnownEnumns[InvertedKnownEnumns[fullName]].SortedValues;
 
-            var missingValues = intellisenseValues.Except(knownValues);
+            var missingValues = descriptor.AllowedValues.Except(knownValues);
             if(missingValues.Any())
                 throw new Exception($"Missing '{fullName}' enum values: {String.Join(",", missingValues)}.");
 
-            var redundantValues = knownValues.Except(intellisenseValues);
+            var redundantValues = knownValues.Except(descriptor.AllowedValues);
             if(redundantValues.Any())
                 throw new Exception($"Redundant '{fullName}' enum values: {String.Join(",", redundantValues)}");
         }

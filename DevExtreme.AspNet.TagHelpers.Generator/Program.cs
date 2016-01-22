@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -10,6 +9,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         const string DX_VERSION = "15.2";
 
         static void Main(string[] args) {
+
             var widgetNames = new HashSet<string> {
                 "dxChart",
                 "dxDataGrid",
@@ -25,8 +25,8 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             var generator = new Generator(outputRoot: "../");
             generator.DeleteGeneratedFiles(ns);
 
-            foreach(var obj in GetIntellisenseObjectsFor(widgetNames))
-                generator.GenerateClass(new TagInfo(obj, tagInfoPreProcessor, ns, null));
+            foreach(var info in IntellisenseData.Root.GetInfoFor($"IntellisenseData/IntellisenseData_{DX_VERSION}.xml", widgetNames))
+                generator.GenerateClass(TagInfo.CreateWidget(new Descriptor(info), tagInfoPreProcessor, ns), parentTag: null);
 
             generator.GenerateEnums(ns, "Enums", EnumRegistry.KnownEnumns);
 
@@ -56,19 +56,13 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             generator.GenerateClass(
                 CreatePivotGridDatasourceTag(tagInfoPreProcessor, ns),
+                "dx-pivot-grid",
                 "PivotGridDatasourceTagHelper",
                 isPartial: true,
                 generateKeyProps: false
             );
 
             Console.WriteLine("Done");
-        }
-
-        static IEnumerable<XElement> GetIntellisenseObjectsFor(ICollection<string> names) {
-            return XDocument.Load($"meta/IntellisenseData_{DX_VERSION}.xml")
-                .Root
-                .Elements("IntellisenseObjectInfo")
-                .Where(o => names.Contains(o.GetName()));
         }
 
         static TargetElementInfo CreateInnerScriptTarget(string parentTagName) {
@@ -89,13 +83,10 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         static TagInfo CreatePivotGridDatasourceTag(TagInfoPreProcessor tagInfoPreProcessor, IEnumerable<string> ns) {
-            var xDoc = XDocument.Load($"meta/IntellisenseData_{DX_VERSION}_spec.xml");
-            var element = new XElement(xDoc.Root.Elements("IntellisenseObjectInfo").Single(el => el.GetName() == "PivotGridDataSource"));
-            element.SetName("datasource");
-            element.GetPropElement("store").Remove();
+            var info = IntellisenseData.Root.GetInfoFor($"IntellisenseData/IntellisenseData_{DX_VERSION}_spec.xml", new[] { "PivotGridDataSource" }).FirstOrDefault();
+            info.RemoveProp("store");
 
-            var result = new TagInfo(element, tagInfoPreProcessor, ns.Concat("Data"), parentTagName: "dx-pivot-grid");
-            result.Key = "dataSource";
+            var result = TagInfo.Create(new Descriptor(info, "datasource"), tagInfoPreProcessor, ns.Concat("Data"));
             result.BaseClassName = null;
 
             return result;

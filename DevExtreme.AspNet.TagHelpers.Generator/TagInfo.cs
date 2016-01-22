@@ -2,76 +2,55 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
     class TagInfo {
-        readonly TagInfoPreProcessor _preProcessor;
+        TagInfoPreProcessor _preProcessor;
 
-        public readonly XElement Element;
-        public string Key;
-        public readonly IEnumerable<string> Namespace;
-        public readonly string ParentTagName;
+        public Descriptor Descriptor;
+        public IEnumerable<string> Namespace;
         public string BaseClassName = "HierarchicalTagHelper";
-        public readonly List<XElement> ChildTagElements = new List<XElement>();
-        public readonly List<XElement> PropElements = new List<XElement>();
-        public readonly List<string> ExtraChildRestrictions = new List<string>();
+        public List<string> ExtraChildRestrictions = new List<string>();
 
-        public TagInfo(XElement element, TagInfoPreProcessor preProcessor, IEnumerable<string> ns, string parentTagName) {
-            _preProcessor = preProcessor;
-            Element = element;
+        public static TagInfo Create(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns) {
+            var tag = new TagInfo(descriptor, preProcessor, ns);
+            preProcessor.Process(tag);
+            return tag;
+        }
+
+        public static TagInfo CreateWidget(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns) {
+            var tag = new TagInfo(descriptor, preProcessor, ns);
+            preProcessor.ProcessWidget(tag);
+            return tag;
+        }
+
+        TagInfo(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns) {
             Namespace = ns;
-            ParentTagName = parentTagName;
-            Key = Element.GetName();
+            SetName(descriptor.RawName);
+            Descriptor = descriptor;
 
-            foreach(var prop in element.Element("Properties").Elements("IntellisenseObjectPropertyInfo")) {
-                if(prop.IsChildTagElement())
-                    ChildTagElements.Add(prop);
-                else
-                    PropElements.Add(prop);
-            }
-
-            preProcessor.Process(this);
+            _preProcessor = preProcessor;
         }
 
-        public string GetTagName() {
-            return Utils.ToKebabCase(Element.GetName());
+        public string Name { get; private set; }
+        public string CamelCaseName { get; private set; }
+        public string ClassName { get; private set; }
+        public string FullName { get; private set; }
+        public string TagName { get; private set; }
+
+        public void SetName(string name) {
+            Name = name;
+            TagName = Utils.ToKebabCase(name);
+            CamelCaseName = name.StartsWith("dx") ? name : Utils.ToCamelCase(name);
+            ClassName = CamelCaseName + "TagHelper";
+            FullName = String.Join(".", Namespace) + "." + CamelCaseName;
         }
 
-        public string GetNamespaceEntry() {
-            var elementName = Element.GetName();
-            return elementName.StartsWith("dx") ? elementName : Utils.ToCamelCase(elementName);
-        }
-
-        public string GetFullKey() {
-            return String.Join(".", Namespace) + "." + GetNamespaceEntry();
-        }
-
-        public string GetClassName() {
-            return GetNamespaceEntry() + "TagHelper";
-        }
-
-        public string GetSummaryText() {
-            return Utils.NormalizeDescription(Element.GetDescription());
-        }
-
-        public TagInfo[] GenerateChildTags() {
-            return ChildTagElements
-                .Select(el => new TagInfo(el, _preProcessor, Namespace.Concat(GetNamespaceEntry()), GetTagName()))
-                .OrderBy(t => t.GetTagName())
-                .ToArray();
-        }
-
-        public string[] GetChildRestrictions(IEnumerable<string> childTags) {
-            return childTags.Concat(ExtraChildRestrictions).OrderBy(t => t).ToArray();
-        }
-
-        public TagPropertyInfo[] GenerateProperties() {
-            return PropElements
-                .Select(el => new TagPropertyInfo(el))
-                .OrderBy(p => p.GetName())
-                .ToArray();
+        public IEnumerable<TagInfo> GetChildTags() {
+            return Descriptor.GetChildTagDescriptors()
+                .Select(d => Create(d, _preProcessor, Namespace.Concat(CamelCaseName)))
+                .OrderBy(t => t.Descriptor.RawName);
         }
     }
 

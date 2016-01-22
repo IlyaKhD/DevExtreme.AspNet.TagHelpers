@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
@@ -131,21 +132,21 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             AppendEmptyLine();
         }
 
-        public void AppendProp(TagPropertyInfo prop, PropTypeInfo propType) {
-            AppendSummary(prop.GetSummaryText());
+        public void AppendProp(Descriptor descriptor, PropTypeInfo propType) {
+            AppendSummary(descriptor.Summary);
 
-            var customAttr = prop.GetCustomAttrName();
+            var propName = Utils.ToCamelCase(descriptor.RawName);
+
+            var customAttr = GetCustomAttr(propName);
             if(!String.IsNullOrEmpty(customAttr))
                 AppendAttribute("HtmlAttributeName", $"\"{customAttr}\"");
 
-            var name = prop.GetName();
-
             AppendGeneratedAttribute();
-            Append($"public {propType.ClrType} {name} ");
+            Append($"public {propType.ClrType} {propName} ");
             StartBlock();
 
-            AppendLine($"get {{ return GetConfigValue<{propType.ClrType}>(\"{name}\"); }}");
-            Append($"set {{ SetConfigValue(\"{name}\", ");
+            AppendLine($"get {{ return GetConfigValue<{propType.ClrType}>(\"{propName}\"); }}");
+            Append($"set {{ SetConfigValue(\"{propName}\", ");
 
             if(propType.IsDomTemplate)
                 Append("Utils.WrapDomTemplateValue(value)");
@@ -158,6 +159,14 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             AppendLine("); }");
             EndBlock();
             AppendEmptyLine();
+        }
+
+        string GetCustomAttr(string name) {
+            var prefix = "Data";
+
+            return Regex.IsMatch(name, $"^{prefix}[A-Z]")
+                ? prefix.ToLower() + Utils.ToKebabCase(name.Substring(prefix.Length))
+                : null;
         }
 
         public override string ToString() {

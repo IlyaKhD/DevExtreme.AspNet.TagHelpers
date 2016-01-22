@@ -2,136 +2,144 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
     class TagInfoPreProcessor {
-        XElement _commonSeriesSettingsSample;
-        XElement _seriesSample;
+        Descriptor _commonSeriesSettingsSample;
+        Descriptor _seriesSample;
+
+        public void ProcessWidget(TagInfo tag) {
+            ModifyWidget(tag);
+            Process(tag);
+        }
 
         public void Process(TagInfo tag) {
-            ModifyWidget(tag);
             ModifyCollectionItem(tag);
             ModifyDatasourceOwner(tag);
             ModifyRangeSelectorChartOptions(tag);
             ModifyCommonSeriesSettings(tag);
+            RemoveSeriesSpecificSettings(tag);
             TurnChildrenIntoProps(tag);
         }
 
         static void ModifyWidget(TagInfo tag) {
-            if(tag.ParentTagName != null)
-                return;
-
             tag.ExtraChildRestrictions.Add("script");
             tag.BaseClassName = "WidgetTagHelper";
-            TargetElementsRegistry.InnerScriptTargets.Add(tag.GetTagName());
+            TargetElementsRegistry.InnerScriptTargets.Add(tag.TagName);
         }
 
         static void ModifyCollectionItem(TagInfo tag) {
-            if(!CollectionItemsRegistry.SuspectCollectionItem(tag.Element.Attribute("Type")?.Value))
+            if(!CollectionItemsRegistry.SuspectCollectionItem(tag.Descriptor.RawType))
                 return;
 
-            if(!CollectionItemsRegistry.IsKnownCollectionItem(tag.GetFullKey()))
-                throw new Exception($"New collection suspect detected: \"{tag.GetFullKey()}\"");
+            if(!CollectionItemsRegistry.IsKnownCollectionItem(tag.FullName))
+                throw new Exception($"New collection suspect detected: \"{tag.FullName}\"");
 
-            tag.Element.SetName(CollectionItemsRegistry.GetModifiedElementName(tag.Element.GetName()));
+            tag.SetName(CollectionItemsRegistry.GetModifiedElementName(tag.Name));
             tag.BaseClassName = "CollectionItemTagHelper";
         }
 
         static void ModifyDatasourceOwner(TagInfo tag) {
-            var datasourceProp = tag.PropElements.FirstOrDefault(s => s.GetName() == "dataSource");
-            if(datasourceProp == null)
+            var datasourceName = "dataSource";
+            if(!tag.Descriptor.HasInnerDescriptor(datasourceName))
                 return;
 
-            tag.PropElements.Remove(datasourceProp);
+            tag.Descriptor.RemoveInnerDescriptor(datasourceName);
             tag.ExtraChildRestrictions.Add("datasource");
 
-            TargetElementsRegistry.DatasourceTargets.Add(tag.GetTagName());
+            TargetElementsRegistry.DatasourceTargets.Add(tag.TagName);
         }
 
         void ModifyRangeSelectorChartOptions(TagInfo tag) {
-            if(tag.GetFullKey() == "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings") {
-                _commonSeriesSettingsSample = new XElement(tag.Element);
+            if(tag.FullName == "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings") {
+                _commonSeriesSettingsSample = new Descriptor(tag.Descriptor);
                 return;
             }
 
-            if(tag.GetFullKey() == "DevExtreme.AspNet.TagHelpers.dxChart.Series") {
-                _seriesSample = new XElement(tag.Element);
+            if(tag.FullName == "DevExtreme.AspNet.TagHelpers.dxChart.Series") {
+                _seriesSample = new Descriptor(tag.Descriptor);
                 return;
             }
 
-            if(tag.GetFullKey() == "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart") {
-                ReplaceWithClone(tag, "commonSeriesSettings", _commonSeriesSettingsSample);
-                ReplaceWithClone(tag, "series", _seriesSample);
+            if(tag.FullName == "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart") {
+                tag.Descriptor.SetInnnerDescriptor("commonSeriesSettings", new Descriptor(_commonSeriesSettingsSample));
+                tag.Descriptor.SetInnnerDescriptor("series", new Descriptor(_seriesSample));
             }
         }
 
-        static void ReplaceWithClone(TagInfo tag, string name, XElement sample) {
-            var element = tag.PropElements.FirstOrDefault(el => el.GetName() == name);
-            var clone = new XElement(sample);
-            element.ReplaceWith(clone);
-            tag.PropElements.Remove(element);
-            tag.ChildTagElements.Add(clone);
-        }
-
-        static void ModifyCommonSeriesSettings(TagInfo tag) {
-            if(tag.GetFullKey() != "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings" &&
-                tag.GetFullKey() != "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart.CommonSeriesSettings")
-                return;
-
-            var seriesSettingsPrefix = "commonseriesoptions_";
-
-            var propOfData = XDocument.Load("meta/PropOf.xml").Root.Elements()
-                .Select(el => new {
-                    DocID = el.Attribute("docid").Value,
-                    PropertyOf = el.Attribute("propertyOf").Value
-                })
-                .Where(i => i.DocID.StartsWith(seriesSettingsPrefix))
-                .ToDictionary(
-                    i => i.DocID.Substring(seriesSettingsPrefix.Length),
-                    i => new HashSet<string>(i.PropertyOf.Split(','), StringComparer.OrdinalIgnoreCase)
-                );
-
-            var seriesNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+        static ICollection<string> _seriesNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
                 "area", "bar", "bubble", "candleStick", "fullStackedArea", "fullStackedBar", "fullStackedLine",
                 "fullStackedSpline", "fullStackedSplineArea", "line", "rangeArea", "rangeBar", "scatter", "spline",
                 "splineArea", "stackedArea", "stackedBar", "stackedLine", "stackedSpline", "stackedSplineArea",
                 "stepArea", "stepLine", "stock"
             };
 
-            foreach(var prop in tag.PropElements.Where(p => seriesNames.Contains(p.GetName())).ToArray()) {
-                prop.Remove();
-                tag.PropElements.Remove(prop);
-            }
+        static void ModifyCommonSeriesSettings(TagInfo tag) {
+            if(tag.FullName != "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings" &&
+                tag.FullName != "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart.CommonSeriesSettings")
+                return;
 
-            var specificSeriesElement = new XElement(tag.Element);
-            specificSeriesElement.GetPropElement("type").Remove();
+            foreach(var series in _seriesNames)
+                tag.Descriptor.RemoveInnerDescriptor(series.ToLower());
 
-            foreach(var name in seriesNames) {
-                var element = new XElement(specificSeriesElement);
-                element.SetAttributeValue("Name", name);
+            var specificSeriesElement = new Descriptor(tag.Descriptor);
+            specificSeriesElement.RemoveInnerDescriptor("type");
 
-                foreach(var prop in propOfData.Where(p => !p.Value.Contains(name + "Series")))
-                    RemoveNestedPropElement(prop.Key.Split('_'), element);
-
-                tag.ChildTagElements.Add(element);
-            }
+            foreach(var name in _seriesNames)
+                tag.Descriptor.SetInnnerDescriptor(name, new Descriptor(specificSeriesElement, name));
         }
 
-        static void RemoveNestedPropElement(IEnumerable<string> nameParts, XElement element) {
-            foreach(var namePart in nameParts) {
-                if(element == null)
-                    break;
+        static void RemoveSeriesSpecificSettings(TagInfo tag) {
+            var fullName = tag.FullName;
+            string compoundName =
+                GetWithoutPrefixOrDefault(fullName, "DevExtreme.AspNet.TagHelpers.dxChart.CommonSeriesSettings.") ??
+                GetWithoutPrefixOrDefault(fullName, "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Chart.CommonSeriesSettings.");
 
-                element = element.GetPropElement(namePart);
-            }
+            if(compoundName == null)
+                return;
 
-            element?.Remove();
+            var nameParts = compoundName.Split('.');
+            var seriesName = _seriesNames.Contains(nameParts[0]) ? nameParts[0] : null;
+
+            if(seriesName == null)
+                return;
+
+            var settingPrefix = String.Join("_", nameParts.Skip(1));
+            if(!String.IsNullOrEmpty(settingPrefix))
+                settingPrefix = settingPrefix + "_";
+
+            var seriesSettingsPrefix = "commonseriesoptions_";
+
+            var propOfData = ChartSeriesSpecificSettings.Root.GetEntries("ChartSeriesSpecificSettings/PropOf.xml")
+                .Where(i => i.DocID.StartsWith(seriesSettingsPrefix))
+                .ToDictionary(
+                    i => i.DocID.Substring(seriesSettingsPrefix.Length),
+                    i => new HashSet<string>(i.Series, StringComparer.OrdinalIgnoreCase)
+                );
+
+            var innerElementsToRemove = propOfData
+                .Where(p =>
+                    p.Key.StartsWith(settingPrefix, StringComparison.OrdinalIgnoreCase) &&
+                    !p.Value.Contains(seriesName + "series", StringComparer.OrdinalIgnoreCase))
+                .Select(p => p.Key.Substring((settingPrefix).Length))
+                .Where(name => !name.Contains("_"));
+
+            tag.Descriptor = new Descriptor(tag.Descriptor);
+
+            foreach(var item in innerElementsToRemove)
+                tag.Descriptor.RemoveInnerDescriptor(item);
+        }
+
+        static string GetWithoutPrefixOrDefault(string input, string prefix) {
+            if(input.StartsWith(prefix))
+                return input.Substring(prefix.Length);
+
+            return null;
         }
 
         static void TurnChildrenIntoProps(TagInfo tag) {
-            var fullNames = new HashSet<string> {
+            var fullNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase){
                     "DevExtreme.AspNet.TagHelpers.dxChart.ArgumentAxis.TickInterval",
                     "DevExtreme.AspNet.TagHelpers.dxChart.ValueAxis.TickInterval",
                     "DevExtreme.AspNet.TagHelpers.dxChart.ArgumentAxis.MinorTickInterval",
@@ -140,16 +148,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
                     "DevExtreme.AspNet.TagHelpers.dxRangeSelector.Scale.TickInterval"
                 };
 
-            var migratingElements = tag.ChildTagElements
-                .Where(el => fullNames.Contains(tag.GetFullKey() + "." + Utils.ToCamelCase(el.GetName())))
-                .ToArray();
+            var migratingDescriptors = tag.Descriptor.GetChildTagDescriptors()
+                .Where(d => fullNames.Contains(tag.FullName + "." + d.RawName));
 
-            foreach(var element in migratingElements) {
-                element.Element("Values").RemoveAll();
-                element.Element("Properties").Remove();
-                tag.ChildTagElements.Remove(element);
-                tag.PropElements.Add(element);
-            }
+            foreach(var descriptor in migratingDescriptors)
+                descriptor.IsChildTag = false;
         }
     }
 

@@ -19,15 +19,15 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             _outputRoot = outputRoot;
         }
 
-        public void GenerateClass(TagInfo tag, string customClassName = null, bool isPartial = false, bool generateKeyProps = true) {
+        public void GenerateClass(TagInfo tag, string parentTag, string customClassName = null, bool isPartial = false, bool generateKeyProps = true) {
             var childTags = new List<string>();
-            foreach(var child in tag.GenerateChildTags()) {
-                childTags.Add(child.GetTagName());
-                GenerateClass(child);
+            foreach(var child in tag.GetChildTags()) {
+                childTags.Add(Utils.ToKebabCase(child.Name));
+                GenerateClass(child, parentTag: tag.TagName);
             }
-
-            var childRestrictions = tag.GetChildRestrictions(childTags);
-            var className = customClassName ?? tag.GetClassName();
+            
+            var childRestrictions = childTags.Concat(tag.ExtraChildRestrictions).OrderBy(t => t);
+            var className = customClassName ?? tag.ClassName;
 
             var builder = new ClassBuilder();
 
@@ -35,14 +35,14 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             builder.AppendUsings(DEFAULT_USINGS);
             builder.StartNamespaceBlock(tag.Namespace);
 
-            builder.AppendSummary(tag.GetSummaryText());
+            builder.AppendSummary(tag.Descriptor.Summary);
 
             if(!isPartial)
                 builder.AppendGeneratedAttribute();
 
             builder.AppendHtmlTargetAttribute(new TargetElementInfo {
-                Tag = tag.GetTagName(),
-                ParentTag = tag.ParentTagName,
+                Tag = tag.TagName,
+                ParentTag = parentTag,
                 IsSelfClosing = !childRestrictions.Any()
             });
 
@@ -53,15 +53,15 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             builder.AppendEmptyLine();
 
             if(generateKeyProps) {
-                builder.AppendKeyProperty("Key", tag.Key);
-                builder.AppendKeyProperty("FullKey", tag.GetFullKey());
+                builder.AppendKeyProperty("Key", tag.Descriptor.RawName);
+                builder.AppendKeyProperty("FullKey", tag.FullName);
             }
 
-            foreach(var prop in tag.GenerateProperties()) {
-                var propTypeInfo = prop.CreateTypeInfo(tag.GetFullKey());
+            foreach(var attrDescriptor in tag.Descriptor.GetAttributeDescriptors().OrderBy(d => d.RawName)) {
+                var propTypeInfo = new PropTypeInfo(attrDescriptor, parentName: tag.FullName);
 
-                CompetitivePropsRegistry.Register(tag.GetFullKey() + "." + prop.GetName(), propTypeInfo.ClrType);
-                builder.AppendProp(prop, propTypeInfo);
+                CompetitivePropsRegistry.Register(tag.FullName + "." + Utils.ToCamelCase(attrDescriptor.RawName), propTypeInfo.ClrType);
+                builder.AppendProp(attrDescriptor, propTypeInfo);
             }
 
             builder.EndBlock();

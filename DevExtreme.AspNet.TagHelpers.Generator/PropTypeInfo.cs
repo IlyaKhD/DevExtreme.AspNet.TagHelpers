@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -26,11 +25,13 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public readonly bool IsDomTemplate;
         public readonly bool IsRawString;
 
-        public PropTypeInfo(XElement element, string fullName, string propName) {
-            var rawType = element.GetRawType();
+        public PropTypeInfo(Descriptor descriptor, string parentName) {
+            var rawType = descriptor.RawType;
+            var propName = Utils.ToCamelCase(descriptor.RawName);
+            var fullName = $"{parentName}.{propName}";
             var dirtyType =
                 GetTypeOverride(fullName) ??
-                GetEnumType(element, fullName, isArray: rawType == "array") ??
+                GetEnumType(descriptor, fullName, isArray: rawType == "array") ??
                 GetType(propName, rawType);
 
             if(dirtyType == null)
@@ -93,11 +94,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             return null;
         }
 
-        string GetEnumType(XElement element, string fullName, bool isArray) {
-            if(!EnumRegistry.IsEnum(element, fullName))
+        string GetEnumType(Descriptor descriptor, string fullName, bool isArray) {
+            if(!EnumRegistry.IsEnum(descriptor, fullName))
                 return null;
 
-            var typeOverride = EnumRegistry.GetEnumTypeName(element, fullName);
+            var typeOverride = EnumRegistry.GetEnumTypeName(descriptor, fullName);
 
             return isArray
                  ? $"IEnumerable<{typeOverride}>"
