@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -27,7 +25,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             var generator = new Generator(outputRoot: "../");
             generator.DeleteGeneratedFiles(ns);
 
-            foreach(var info in GetIntellisenseInfoFor($"meta/IntellisenseData_{DX_VERSION}.xml", widgetNames))
+            foreach(var info in IntellisenseData.Root.GetInfoFor($"IntellisenseData/IntellisenseData_{DX_VERSION}.xml", widgetNames))
                 generator.GenerateClass(TagInfo.CreateWidget(new Descriptor(info), tagInfoPreProcessor, ns), parentTag: null);
 
             generator.GenerateEnums(ns, "Enums", EnumRegistry.KnownEnumns);
@@ -67,11 +65,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             Console.WriteLine("Done");
         }
 
-        static IEnumerable<IntellisenseInfo> GetIntellisenseInfoFor(string path, ICollection<string> widgetNames) {
-            return ((IntellisenseRoot)new XmlSerializer(typeof(IntellisenseRoot)).Deserialize(File.OpenRead(path)))
-                .Widgets.Where(w => widgetNames.Contains(w.Name));
-        }
-
         static TargetElementInfo CreateInnerScriptTarget(string parentTagName) {
             return new TargetElementInfo {
                 Tag = "script",
@@ -90,7 +83,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
 
         static TagInfo CreatePivotGridDatasourceTag(TagInfoPreProcessor tagInfoPreProcessor, IEnumerable<string> ns) {
-            var info = GetIntellisenseInfoFor($"meta/IntellisenseData_{DX_VERSION}_spec.xml", new[] { "PivotGridDataSource" }).FirstOrDefault();
+            var info = IntellisenseData.Root.GetInfoFor($"IntellisenseData/IntellisenseData_{DX_VERSION}_spec.xml", new[] { "PivotGridDataSource" }).FirstOrDefault();
             info.RemoveProp("store");
 
             var result = TagInfo.Create(new Descriptor(info, "datasource"), tagInfoPreProcessor, ns.Concat("Data"));

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -15,20 +14,23 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         public List<string> ExtraChildRestrictions = new List<string>();
 
         public static TagInfo Create(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns) {
-            return new TagInfo(descriptor, preProcessor, ns, isWidget: false);
+            var tag = new TagInfo(descriptor, preProcessor, ns);
+            preProcessor.Process(tag);
+            return tag;
         }
 
         public static TagInfo CreateWidget(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns) {
-            return new TagInfo(descriptor, preProcessor, ns, isWidget: true);
+            var tag = new TagInfo(descriptor, preProcessor, ns);
+            preProcessor.ProcessWidget(tag);
+            return tag;
         }
 
-        TagInfo(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns, bool isWidget) {
+        TagInfo(Descriptor descriptor, TagInfoPreProcessor preProcessor, IEnumerable<string> ns) {
             Namespace = ns;
             SetName(descriptor.RawName);
             Descriptor = descriptor;
 
             _preProcessor = preProcessor;
-            preProcessor.Process(this, isWidget);
         }
 
         public string Name { get; private set; }

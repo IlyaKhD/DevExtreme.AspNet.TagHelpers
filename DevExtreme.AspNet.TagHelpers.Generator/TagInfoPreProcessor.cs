@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -11,10 +9,12 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         Descriptor _commonSeriesSettingsSample;
         Descriptor _seriesSample;
 
-        public void Process(TagInfo tag, bool isWidget) {
-            if(isWidget)
-                ModifyWidget(tag);
+        public void ProcessWidget(TagInfo tag) {
+            ModifyWidget(tag);
+            Process(tag);
+        }
 
+        public void Process(TagInfo tag) {
             ModifyCollectionItem(tag);
             ModifyDatasourceOwner(tag);
             ModifyRangeSelectorChartOptions(tag);
@@ -111,15 +111,11 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
             var seriesSettingsPrefix = "commonseriesoptions_";
 
-            var propOfData = XDocument.Load("meta/PropOf.xml").Root.Elements()
-                .Select(el => new {
-                    DocID = el.Attribute("docid").Value,
-                    PropertyOf = el.Attribute("propertyOf").Value
-                })
+            var propOfData = ChartSeriesSpecificSettings.Root.GetEntries("ChartSeriesSpecificSettings/PropOf.xml")
                 .Where(i => i.DocID.StartsWith(seriesSettingsPrefix))
                 .ToDictionary(
                     i => i.DocID.Substring(seriesSettingsPrefix.Length),
-                    i => new HashSet<string>(i.PropertyOf.Split(','), StringComparer.OrdinalIgnoreCase)
+                    i => new HashSet<string>(i.Series, StringComparer.OrdinalIgnoreCase)
                 );
 
             var innerElementsToRemove = propOfData

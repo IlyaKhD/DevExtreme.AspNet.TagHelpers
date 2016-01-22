@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace DevExtreme.AspNet.TagHelpers.Generator {
+namespace DevExtreme.AspNet.TagHelpers.Generator.IntellisenseData {
 
     [XmlInclude(typeof(IntellisenseObjectInfo))]
-    public class IntellisenseInfo {
-        static IntellisenseInfo[] EmptyPropsArray = new IntellisenseInfo[0];
+    public class Info {
+        static Info[] EmptyPropsArray = new Info[0];
 
-        ICollection<IntellisenseInfo> _props;
+        ICollection<Info> _props;
 
         [XmlAttribute]
         public string Type;
@@ -23,7 +23,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         [XmlArray("Properties")]
         [XmlArrayItem("IntellisenseObjectPropertyInfo")]
-        public IntellisenseInfo[] Props {
+        public Info[] Props {
             get { return _props?.ToArray() ?? EmptyPropsArray; }
             set { _props = value.ToList(); }
         }
@@ -39,7 +39,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
         }
     }
 
-    public class IntellisenseObjectInfo : IntellisenseInfo { }
+    public class IntellisenseObjectInfo : Info { }
 
     public class IntellisenseAllowedValue {
 

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using DevExtreme.AspNet.TagHelpers.Generator.IntellisenseData;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator {
 
@@ -16,7 +16,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         public bool IsChildTag;
 
-        public Descriptor(IntellisenseInfo info) {
+        public Descriptor(Info info) {
             RawType = info.Type;
             RawName = info.Name;
             Summary = Utils.NormalizeDescription(info.Description);
@@ -39,9 +39,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             }
         }
 
-        static bool IsChildTagElement(XElement el) {
-            return el.Attribute("{http://www.w3.org/2001/XMLSchema-instance}type")?.Value == "IntellisenseObjectInfo";
-        }
         public Descriptor(Descriptor d) {
             RawType = d.RawType;
             RawName = d.RawName;
@@ -51,7 +48,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             _innerDescriptors = d._innerDescriptors.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
         }
 
-        public Descriptor(IntellisenseInfo info, string rawNameOverride)
+        public Descriptor(Info info, string rawNameOverride)
             : this(info) {
             RawName = rawNameOverride;
         }
