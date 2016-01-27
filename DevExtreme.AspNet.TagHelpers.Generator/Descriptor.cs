@@ -39,7 +39,16 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             Summary = d.Summary;
             IsChildTag = d.IsChildTag;
             AllowedValues = d.AllowedValues;
-            _innerDescriptors = d._innerDescriptors.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.OrdinalIgnoreCase);
+            _innerDescriptors = CloneDescriptors(d._innerDescriptors);
+        }
+
+        IDictionary<string, Descriptor> CloneDescriptors(IDictionary<string, Descriptor> descriptors) {
+            var result = new Dictionary<string, Descriptor>(StringComparer.OrdinalIgnoreCase);
+
+            foreach(var entry in descriptors)
+                result.Add(entry.Key, entry.Value);
+
+            return result;
         }
 
         public Descriptor(Info info, string rawNameOverride)
