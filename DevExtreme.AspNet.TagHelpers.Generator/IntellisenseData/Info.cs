@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace DevExtreme.AspNet.TagHelpers.Generator.IntellisenseData {
 
-    [XmlInclude(typeof(IntellisenseObjectInfo))]
+    [XmlType(TypeName = "IntellisenseObjectInfo")]
     public class Info {
 
         [XmlAttribute]
@@ -27,8 +27,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator.IntellisenseData {
         public IntellisenseAllowedValue[] IntellisenseAllowedValues;
 
         public IEnumerable<string> AllowedValues => IntellisenseAllowedValues?.Select(v => v.Name) ?? Enumerable.Empty<string>();
-
-        public class IntellisenseObjectInfo : Info { }
 
         public class IntellisenseAllowedValue {
 
