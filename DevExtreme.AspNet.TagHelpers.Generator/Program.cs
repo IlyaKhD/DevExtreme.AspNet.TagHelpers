@@ -84,7 +84,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
 
         static TagInfo CreatePivotGridDatasourceTag(TagInfoPreProcessor tagInfoPreProcessor, IEnumerable<string> ns) {
             var info = IntellisenseData.Root.GetInfoFor($"IntellisenseData/IntellisenseData_{DX_VERSION}_spec.xml", new[] { "PivotGridDataSource" }).FirstOrDefault();
-            info.RemoveProp("store");
+            info.Props.Remove(info.Props.Single(p => p.Name == "store"));
 
             var result = TagInfo.Create(new Descriptor(info, "datasource"), tagInfoPreProcessor, ns.Concat("Data"));
             result.BaseClassName = null;

@@ -8,9 +8,6 @@ namespace DevExtreme.AspNet.TagHelpers.Generator.IntellisenseData {
 
     [XmlInclude(typeof(IntellisenseObjectInfo))]
     public class Info {
-        static Info[] EmptyPropsArray = new Info[0];
-
-        ICollection<Info> _props;
 
         [XmlAttribute]
         public string Type;
@@ -23,10 +20,7 @@ namespace DevExtreme.AspNet.TagHelpers.Generator.IntellisenseData {
 
         [XmlArray("Properties")]
         [XmlArrayItem("IntellisenseObjectPropertyInfo")]
-        public Info[] Props {
-            get { return _props?.ToArray() ?? EmptyPropsArray; }
-            set { _props = value.ToList(); }
-        }
+        public List<Info> Props;
 
         [XmlArray("Values")]
         [XmlArrayItem("IntellisenseInfo")]
@@ -34,16 +28,13 @@ namespace DevExtreme.AspNet.TagHelpers.Generator.IntellisenseData {
 
         public IEnumerable<string> AllowedValues => IntellisenseAllowedValues?.Select(v => v.Name) ?? Enumerable.Empty<string>();
 
-        public void RemoveProp(string propName) {
-            _props.Remove(_props.Single(p => p.Name == propName));
+        public class IntellisenseObjectInfo : Info { }
+
+        public class IntellisenseAllowedValue {
+
+            [XmlAttribute]
+            public string Name;
         }
     }
 
-    public class IntellisenseObjectInfo : Info { }
-
-    public class IntellisenseAllowedValue {
-
-        [XmlAttribute]
-        public string Name;
-    }
 }
