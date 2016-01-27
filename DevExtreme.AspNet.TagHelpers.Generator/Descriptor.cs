@@ -22,21 +22,15 @@ namespace DevExtreme.AspNet.TagHelpers.Generator {
             Summary = Utils.NormalizeDescription(info.Description);
             IsChildTag = info.Props.Any();
 
-            if(info.AllowedValues != null) {
-                AllowedValues = info.AllowedValues
-                    .Select(i => i.Trim(' ', '\'', '"'))
-                    .Where(i => i != "undefined")
-                    .OrderBy(i => i)
-                    .ToArray();
-            } else {
+            AllowedValues = info.AllowedValues
+                .Select(i => i.Trim(' ', '\'', '"'))
+                .Where(i => i != "undefined")
+                .OrderBy(i => i)
+                .ToArray();
 
-            }
-
-            if(info.Props.Any()) {
-                _innerDescriptors = info.Props
-                    .Select(i => new Descriptor(i))
-                    .ToDictionary(d => d.RawName, d => d, StringComparer.OrdinalIgnoreCase);
-            }
+            _innerDescriptors = info.Props
+                .Select(i => new Descriptor(i))
+                .ToDictionary(d => d.RawName, d => d, StringComparer.OrdinalIgnoreCase);
         }
 
         public Descriptor(Descriptor d) {
